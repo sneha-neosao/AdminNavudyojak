@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
-    _loadSavedCredentials();
+    _loadRememberedCredentials();
 
     _animationController = AnimationController(
       vsync: this,
@@ -59,11 +59,11 @@ class _LoginScreenState extends State<LoginScreen>
     _animationController.forward();
   }
 
-  Future<void> _loadSavedCredentials() async {
-    final credentials = await SessionManager.getSavedCredentials();
+  Future<void> _loadRememberedCredentials() async {
+    final credentials = await SessionManager.getRememberCredentials();
     if (credentials != null && mounted) {
       setState(() {
-        _emailController.text = credentials['username'] ?? '';
+        _emailController.text = credentials['email'] ?? '';
         _passwordController.text = credentials['password'] ?? '';
         _rememberMe = true;
       });
@@ -83,12 +83,14 @@ class _LoginScreenState extends State<LoginScreen>
     FocusManager.instance.primaryFocus?.unfocus();
 
     final authForm = context.read<AuthLoginFormBloc>().state;
-    final email = authForm.email.trim().isNotEmpty
-        ? authForm.email.trim()
-        : _emailController.text.trim();
-    final password = authForm.password.trim().isNotEmpty
-        ? authForm.password.trim()
-        : _passwordController.text.trim();
+    // If user edited the input, controller has the latest edited text.
+    // If user did not edit, controller has the autofilled credentials.
+    final email = _emailController.text.trim().isNotEmpty
+        ? _emailController.text.trim()
+        : authForm.email.trim();
+    final password = _passwordController.text.trim().isNotEmpty
+        ? _passwordController.text.trim()
+        : authForm.password.trim();
 
     context.read<AuthLoginBloc>().add(
           AuthLoginEvent(email, password),
@@ -108,6 +110,26 @@ class _LoginScreenState extends State<LoginScreen>
       ],
       child: Builder(
         builder: (context) {
+          // Sync auto-filled controller text to FormBloc on initial build
+          if (_emailController.text.isNotEmpty &&
+              context.read<AuthLoginFormBloc>().state.email.isEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                final formBloc = context.read<AuthLoginFormBloc>();
+                if (formBloc.state.email.isEmpty &&
+                    _emailController.text.isNotEmpty) {
+                  formBloc.add(LoginFormEmailChangedEvent(
+                      _emailController.text.trim()));
+                }
+                if (formBloc.state.password.isEmpty &&
+                    _passwordController.text.isNotEmpty) {
+                  formBloc.add(LoginFormPasswordChangedEvent(
+                      _passwordController.text.trim()));
+                }
+              }
+            });
+          }
+
           return BlocConsumer<AuthLoginBloc, AuthLoginState>(
             listener: (context, state) async {
               if (state is AuthLoginFailureState) {
@@ -119,18 +141,32 @@ class _LoginScreenState extends State<LoginScreen>
               } else if (state is AuthLoginSuccessState) {
                 await SessionManager.saveLoginStatus(true);
                 await SessionManager.saveUserSession(state.data);
-                if (state.data.data?.accessToken != null && state.data.data!.accessToken!.isNotEmpty) {
-                  await SessionManager.saveSessionId(state.data.data?.accessToken);
+                if (state.data.data?.accessToken != null &&
+                    state.data.data!.accessToken!.isNotEmpty) {
+                  await SessionManager.saveSessionId(
+                      state.data.data?.accessToken);
                 }
-                if (state.data.data?.refreshToken != null && state.data.data!.refreshToken!.isNotEmpty) {
-                  await SessionManager.saveRefreshToken(state.data.data?.refreshToken);
+                if (state.data.data?.refreshToken != null &&
+                    state.data.data!.refreshToken!.isNotEmpty) {
+                  await SessionManager.saveRefreshToken(
+                      state.data.data?.refreshToken);
                 }
+
+                // Check state of the checkbox:
+                // If true -> save the entered email and password in that session
+                // If false -> do not save them and if present in session clear them
+                final enteredEmail = _emailController.text.trim();
+                final enteredPassword = _passwordController.text.trim();
+
                 if (_rememberMe) {
-                  await SessionManager.saveCredentials(
-                    _emailController.text.trim(),
-                    _passwordController.text.trim(),
+                  await SessionManager.saveRememberCredentials(
+                    email: enteredEmail,
+                    password: enteredPassword,
                   );
+                } else {
+                  await SessionManager.clearRememberCredentials();
                 }
+
                 if (context.mounted) {
                   AppSnackBarWidget.show(
                     context,

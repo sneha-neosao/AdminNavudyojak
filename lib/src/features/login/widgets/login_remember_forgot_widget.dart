@@ -22,33 +22,45 @@ class LoginRememberForgotWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            SizedBox(
-              height: 24,
-              width: 24,
-              child: Checkbox(
-                value: rememberMe,
-                activeColor: AppColor.primary,
-                side: BorderSide(
-                  color: theme.dividerColor,
-                  width: 1.5,
+        InkWell(
+          borderRadius: BorderRadius.circular(4),
+          onTap: () => onRememberMeChanged(!rememberMe),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 20,
+                width: 20,
+                child: Checkbox(
+                  value: rememberMe,
+                  activeColor: AppColor.primary,
+                  checkColor: AppColor.white,
+                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return AppColor.primary;
+                    }
+                    return AppColor.transparent;
+                  }),
+                  side: BorderSide(
+                    color: rememberMe ? AppColor.primary : theme.dividerColor,
+                    width: 1.5,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                  onChanged: onRememberMeChanged,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+              ),
+              8.wS,
+              Text(
+                'login.remember_me'.tr(),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontSize: 13,
                 ),
-                onChanged: onRememberMeChanged,
               ),
-            ),
-            8.wS,
-            Text(
-              'login.remember_me'.tr(),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontSize: 13,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
         TextButton(
           onPressed: onForgotPassword,

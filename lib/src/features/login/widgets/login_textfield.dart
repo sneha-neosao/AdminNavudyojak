@@ -84,16 +84,26 @@ class _LoginTextFieldState<T> extends State<LoginTextField<T>> {
           readOnly: widget.readOnly ?? false,
           validator: (val) {
             if (formBloc is AuthLoginFormBloc) {
-              if (widget.label == "email".tr() && (val == null || val.isEmpty)) {
+              final textVal = (val != null && val.isNotEmpty)
+                  ? val
+                  : (widget.controller?.text ?? '');
+              final emailToCheck = textVal.isNotEmpty
+                  ? textVal
+                  : formBloc.state.email;
+              final passwordToCheck = textVal.isNotEmpty
+                  ? textVal
+                  : formBloc.state.password;
+
+              if (widget.label == "email".tr() && textVal.isEmpty) {
                 return "please_enter_email".tr();
               } else if (widget.label == "email".tr() &&
-                  !formBloc.state.email.isEmailValid) {
+                  !emailToCheck.isEmailValid) {
                 return "please_enter_valid_email".tr();
               } else if (widget.label == "login_password_label".tr() &&
-                  (val == null || val.isEmpty)) {
+                  textVal.isEmpty) {
                 return "please_enter_password".tr();
               } else if (widget.label == "login_password_label".tr() &&
-                  !formBloc.state.password.isPasswordValid) {
+                  !passwordToCheck.isPasswordValid) {
                 return "please_enter_valid_password".tr();
               }
             }
