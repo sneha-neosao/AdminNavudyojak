@@ -51,6 +51,10 @@ void configureDepedencies() {
     () => LogoutUseCase(getIt<Repository>()),
   );
 
+  getIt.registerLazySingleton<CustomersUseCase>(
+    () => CustomersUseCase(getIt<Repository>()),
+  );
+
   /// Auth & Login BLoCs registered per Rule 4
   getIt.registerFactory<AuthLoginBloc>(
     () => AuthLoginBloc(
@@ -61,5 +65,10 @@ void configureDepedencies() {
 
   getIt.registerFactory<AuthLoginFormBloc>(
     () => AuthLoginFormBloc(),
+  );
+
+  /// Customers BLoC registered per Rule 4
+  getIt.registerFactory<CustomersBloc>(
+    () => CustomersBloc(getIt<CustomersUseCase>()),
   );
 }

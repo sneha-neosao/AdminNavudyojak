@@ -12,3 +12,6 @@ export '../../features/login/bloc/auth_login_bloc/auth_login_bloc.dart';
 export '../../features/login/bloc/auth_login_form_bloc/auth_login_form_bloc.dart';
 export '../../features/login/domain/usecase/login_usecase.dart';
 export '../../features/login/domain/usecase/logout_usecase.dart';
+export '../../remote/models/customers_model/customers_response.dart';
+export '../../features/customers/domain/usecase/customers_usecase.dart';
+export '../../features/customers/bloc/customers_bloc/customers_bloc.dart';

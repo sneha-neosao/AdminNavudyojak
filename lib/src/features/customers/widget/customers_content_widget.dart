@@ -1,11 +1,16 @@
-import 'package:admin_navudyojak/src/features/customers/widget/customer_detail_item.dart';
-import 'package:admin_navudyojak/src/features/customers/widget/customer_header_widget.dart';
-import 'package:admin_navudyojak/src/features/customers/widget/customer_list_card_widget.dart';
-import 'package:admin_navudyojak/src/features/customers/widget/customer_search_bar_widget.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/extensions/integer_sizedbox_extension.dart';
+import '../../../core/theme/app_color.dart';
 import '../../../routes/app_route_path.dart';
+import '../../widgets/app_snackbar_widget.dart';
+import '../bloc/customers_bloc/customers_bloc.dart';
+import 'customer_detail_item.dart';
+import 'customer_header_widget.dart';
+import 'customer_list_card_widget.dart';
+import 'customer_search_bar_widget.dart';
 
 class CustomersContentWidget extends StatefulWidget {
   const CustomersContentWidget({super.key});
@@ -15,142 +20,132 @@ class CustomersContentWidget extends StatefulWidget {
 }
 
 class _CustomersContentWidgetState extends State<CustomersContentWidget> {
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  Timer? _debounceTimer;
+  String _lastDispatchedSearch = '';
 
-  static const List<CustomerDetailItem> _allCustomers = [
-    CustomerDetailItem(
-      initials: 'SS',
-      name: 'Sunita Sharma',
-      phone: '98765 43210',
-      city: 'Pune',
-      amount: '₹1,82,400',
-      code: 'CUST-1248',
-    ),
-    CustomerDetailItem(
-      initials: 'VP',
-      name: 'Vijay Pawar',
-      phone: '98220 11823',
-      city: 'Nashik',
-      amount: '₹94,500',
-      code: 'CUST-1247',
-    ),
-    CustomerDetailItem(
-      initials: 'NK',
-      name: 'Neha Kulkarni',
-      phone: '97654 22190',
-      city: 'Kolhapur',
-      amount: '₹68,200',
-      code: 'CUST-1246',
-    ),
-    CustomerDetailItem(
-      initials: 'RJ',
-      name: 'Ramesh Jagtap',
-      phone: '98901 44872',
-      city: 'Satara',
-      amount: '₹1,14,000',
-      code: 'CUST-1245',
-    ),
-    CustomerDetailItem(
-      initials: 'PG',
-      name: 'Pooja Gaikwad',
-      phone: '98123 77882',
-      city: 'Pune',
-      amount: '₹52,800',
-      code: 'CUST-1244',
-    ),
-    CustomerDetailItem(
-      initials: 'KM',
-      name: 'Kiran More',
-      phone: '99872 31456',
-      city: 'Sangli',
-      amount: '₹81,650',
-      code: 'CUST-1243',
-    ),
-    CustomerDetailItem(
-      initials: 'MS',
-      name: 'Meena Shinde',
-      phone: '98604 55431',
-      city: 'Pune',
-      amount: '₹1,26,700',
-      code: 'CUST-1242',
-    ),
-    CustomerDetailItem(
-      initials: 'AD',
-      name: 'Amit Deshmukh',
-      phone: '99221 44312',
-      city: 'Nashik',
-      amount: '₹74,300',
-      code: 'CUST-1241',
-    ),
-    CustomerDetailItem(
-      initials: 'SJ',
-      name: 'Sonal Jadhav',
-      phone: '97855 12348',
-      city: 'Pune',
-      amount: '₹91,200',
-      code: 'CUST-1240',
-    ),
-    CustomerDetailItem(
-      initials: 'RP',
-      name: 'Rajesh Patil',
-      phone: '98500 11122',
-      city: 'Satara',
-      amount: '₹1,48,900',
-      code: 'CUST-1239',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
 
-  List<CustomerDetailItem> get _filteredCustomers {
-    if (_searchQuery.trim().isEmpty) {
-      return _allCustomers;
+  void _onScroll() {
+    if (_scrollController.hasClients) {
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      final currentScroll = _scrollController.position.pixels;
+      if (currentScroll >= maxScroll - 150) {
+        context.read<CustomersBloc>().add(LoadMoreCustomersEvent());
+      }
     }
-    final q = _searchQuery.toLowerCase().trim();
-    return _allCustomers.where((c) {
-      return c.name.toLowerCase().contains(q) ||
-          c.phone.replaceAll(' ', '').contains(q) ||
-          c.city.toLowerCase().contains(q) ||
-          c.code.toLowerCase().contains(q);
-    }).toList();
+  }
+
+  void _onSearchChanged(String val) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 400), () {
+      final query = val.trim();
+      if (query.length >= 3) {
+        if (_lastDispatchedSearch != query) {
+          _lastDispatchedSearch = query;
+          context.read<CustomersBloc>().add(
+                GetCustomersEvent(page: 1, limit: 10, search: query),
+              );
+        }
+      } else if (query.isEmpty && _lastDispatchedSearch.isNotEmpty) {
+        _lastDispatchedSearch = '';
+        context.read<CustomersBloc>().add(
+              const GetCustomersEvent(page: 1, limit: 10, search: null),
+            );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          8.hS,
-          const CustomerHeaderWidget(),
-          16.hS,
-          CustomerSearchBarWidget(
-            controller: _searchController,
-            onChanged: (val) {
-              setState(() {
-                _searchQuery = val;
-              });
-            },
+    return BlocConsumer<CustomersBloc, CustomersState>(
+      listener: (context, state) {
+        if (state is CustomersFailureState) {
+          AppSnackBarWidget.show(
+            context,
+            message: state.message,
+            type: ToastType.error,
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is CustomersLoadingState;
+        final isLoadingMore =
+            state is CustomersSuccessState && state.isLoadingMore;
+        final errorMessage =
+            state is CustomersFailureState ? state.message : null;
+
+        List<CustomerDetailItem> customerItems = [];
+        if (state is CustomersSuccessState) {
+          customerItems =
+              state.allResults.map((c) => c.toCustomerDetailItem()).toList();
+        }
+
+        return RefreshIndicator(
+          color: AppColor.primary,
+          backgroundColor: AppColor.pureWhite,
+          onRefresh: () async {
+            context.read<CustomersBloc>().add(RefreshCustomersEvent());
+          },
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                8.hS,
+                const CustomerHeaderWidget(),
+                16.hS,
+                CustomerSearchBarWidget(
+                  controller: _searchController,
+                  onChanged: _onSearchChanged,
+                ),
+                16.hS,
+                CustomerListCardWidget(
+                  items: customerItems,
+                  isLoading: isLoading,
+                  isLoadingMore: isLoadingMore,
+                  errorMessage: errorMessage,
+                  onRetry: () {
+                    context.read<CustomersBloc>().add(
+                          GetCustomersEvent(
+                            page: 1,
+                            limit: 10,
+                            search: _lastDispatchedSearch.isNotEmpty
+                                ? _lastDispatchedSearch
+                                : null,
+                          ),
+                        );
+                  },
+                  onItemTap: (customer) {
+                    context.push(
+                      AppRoute.customerOnboardingDetails.path,
+                      extra: customer,
+                    );
+                  },
+                ),
+                24.hS,
+              ],
+            ),
           ),
-          16.hS,
-          CustomerListCardWidget(
-            items: _filteredCustomers,
-            onItemTap: (customer) {
-              context.push(
-                AppRoute.customerOnboardingDetails.path,
-                extra: customer,
-              );
-            },
-          ),
-          24.hS,
-        ],
-      ),
+        );
+      },
     );
   }
 }

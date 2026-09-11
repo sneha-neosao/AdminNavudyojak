@@ -10,12 +10,18 @@ import '../../features/login/domain/usecase/login_usecase.dart';
 import '../datasource/auth_remote_datasource.dart';
 import '../models/auth_model/Login_response.dart';
 import '../models/auth_model/logout_response.dart';
+import '../models/customers_model/customers_response.dart';
+import '../../features/customers/domain/usecase/customers_usecase.dart';
 
 /// Abstract Repository interface defining all data operations for the app
 abstract class Repository {
   /// Authentication
   Future<Either<Failure, LoginResponse>> login(LoginParams params);
   Future<Either<Failure, LogoutResponse>> logout(NoParams params);
+
+  /// Customers
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, CustomersResponse>> customers_list(CustomersParams params);
 }
 
 class AuthRepositoryImpl implements Repository {
@@ -99,6 +105,49 @@ class AuthRepositoryImpl implements Repository {
         } catch (e) {
           if (e is ApiException) {
             return Left(ApiFailure(e.message)); // rethrow as-is
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, CustomersResponse>> customers_list(CustomersParams params) {
+    return _networkInfo.check<CustomersResponse>(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.customers_list(
+            page: params.page,
+            limit: params.limit,
+            search: params.search,
+            city: params.city,
+            state: params.state,
+            isActive: params.isActive,
+          );
+
+          if (respData.success == false) {
+            return Left(ServerFailure(
+              respData.message?.isNotEmpty == true
+                  ? respData.message!
+                  : "Failed to retrieve customers",
+            ));
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
           }
           return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
         }

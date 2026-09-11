@@ -11,6 +11,8 @@ class ApiUrl {
 
   static const logout = "/auth/logout";
 
+  static const customers = "/admin-app/customers";
+
   static const firebaseTokenUpdate = "/profile/update-firebase-token";
 
   static const orderList = "/orders/list";

@@ -1,4 +1,5 @@
 import 'package:admin_navudyojak/src/features/customers/widget/customer_detail_item.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/extensions/integer_sizedbox_extension.dart';
@@ -8,11 +9,21 @@ import '../../widgets/app_snackbar_widget.dart';
 class CustomerListCardWidget extends StatelessWidget {
   final List<CustomerDetailItem> items;
   final ValueChanged<CustomerDetailItem>? onItemTap;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? title;
+  final String? errorMessage;
+  final VoidCallback? onRetry;
 
   const CustomerListCardWidget({
     super.key,
     required this.items,
     this.onItemTap,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.title,
+    this.errorMessage,
+    this.onRetry,
   });
 
   @override
@@ -42,7 +53,7 @@ class CustomerListCardWidget extends StatelessWidget {
         children: [
           // Title
           Text(
-            'Latest 10 customers',
+            title ?? (items.isNotEmpty ? 'Customers (${items.length})' : 'Customers'),
             style: theme.textTheme.titleMedium?.copyWith(
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
@@ -65,31 +76,115 @@ class CustomerListCardWidget extends StatelessWidget {
           ),
           16.hS,
 
-          // Empty state
-          if (items.isEmpty)
+          // Loading state
+          if (isLoading)
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h),
+              padding: EdgeInsets.symmetric(vertical: 40.h),
               child: Center(
-                child: Text(
-                  'No customers found',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColor.slateGrey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  softWrap: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CupertinoActivityIndicator(
+                      color: AppColor.primary,
+                      radius: 14.r,
+                    ),
+                    12.hS,
+                    Text(
+                      'Loading customers...',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppColor.textSecondary,
+                        fontSize: 13.sp,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
+          // Error state with Retry
+          else if (errorMessage != null && errorMessage!.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 28.h),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error_outline_rounded,
+                      color: AppColor.brightRed,
+                      size: 32.sp,
+                    ),
+                    8.hS,
+                    Text(
+                      errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColor.brightRed,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      softWrap: true,
+                    ),
+                    if (onRetry != null) ...[
+                      12.hS,
+                      TextButton.icon(
+                        onPressed: onRetry,
+                        icon: const Icon(Icons.refresh_rounded, size: 18),
+                        label: const Text('Retry'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColor.primary,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            )
+          // Empty state
+          else if (items.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 32.h),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.person_off_outlined,
+                      color: AppColor.slateGrey,
+                      size: 36.sp,
+                    ),
+                    8.hS,
+                    Text(
+                      'No customers found',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColor.slateGrey,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      softWrap: true,
+                    ),
+                  ],
+                ),
+              ),
+            )
+          // Loaded items list
           else
             ...List.generate(items.length, (index) {
               final item = items[index];
               return Padding(
                 padding: EdgeInsets.only(
-                  bottom: index == items.length - 1 ? 0 : 10.h,
+                  bottom: index == items.length - 1 && !isLoadingMore ? 0 : 10.h,
                 ),
                 child: _buildCustomerItemCard(context, item),
               );
             }),
+            if (isLoadingMore)
+              Padding(
+                padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
+                child: Center(
+                  child: CupertinoActivityIndicator(
+                    color: AppColor.primary,
+                    radius: 11.r,
+                  ),
+                ),
+              ),
         ],
       ),
     );
