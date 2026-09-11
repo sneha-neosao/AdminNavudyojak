@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
+import '../../../../core/services/notification_service.dart';
+import '../../../../core/utils/logger.dart';
 import '../../../../core/theme/app_color.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../app_version/bloc/app_version_bloc/app_version_bloc.dart';
 import '../../../profile/bloc/profile_details_bloc/profile_details_bloc.dart';
+import '../../../profile/bloc/update_fcm_token_bloc/update_fcm_token_bloc.dart';
 import '../../../notifications/bloc/notifications_count_bloc/notifications_count_bloc.dart';
 import '../../widget/home_content_widget.dart';
 
@@ -20,10 +23,14 @@ class _HomeScreenState extends State<HomeScreen> {
   late final AppVersionBloc _appVersionBloc;
   late final ProfileDetailsBloc _profileDetailsBloc;
   late final NotificationsCountBloc _notificationsCountBloc;
+  late final UpdateFcmTokenBloc _updateFcmTokenBloc;
 
   @override
   void initState() {
     super.initState();
+    _updateFcmTokenBloc = getIt<UpdateFcmTokenBloc>();
+    _fetchAndPrintFcmToken();
+
     _appVersionBloc = getIt<AppVersionBloc>();
     _appVersionBloc.add(const CheckAppVersionEvent(appName: 'admin_app'));
 
@@ -34,8 +41,20 @@ class _HomeScreenState extends State<HomeScreen> {
     _notificationsCountBloc.add(const GetNotificationsCountEvent());
   }
 
+  Future<void> _fetchAndPrintFcmToken() async {
+    final token = await NotificationService.getToken();
+    debugPrint('================ FCM TOKEN ================');
+    debugPrint('$token');
+    debugPrint('===========================================');
+    logger.i('FCM Token: $token');
+    if (token != null && token.isNotEmpty) {
+      _updateFcmTokenBloc.add(SubmitUpdateFcmTokenEvent(token));
+    }
+  }
+
   @override
   void dispose() {
+    _updateFcmTokenBloc.close();
     _notificationsCountBloc.close();
     _profileDetailsBloc.close();
     _appVersionBloc.close();
@@ -54,6 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         BlocProvider<NotificationsCountBloc>.value(
           value: _notificationsCountBloc,
+        ),
+        BlocProvider<UpdateFcmTokenBloc>.value(
+          value: _updateFcmTokenBloc,
         ),
       ],
       child: BlocListener<AppVersionBloc, AppVersionState>(

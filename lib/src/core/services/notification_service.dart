@@ -2,12 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:admin_navudyojak/firebase_options.dart';
 import 'package:admin_navudyojak/src/core/session/session_manager.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+
+typedef NotificationService = NoficationService;
 
 class NoficationService {
   // ============================================================
@@ -53,6 +57,11 @@ class NoficationService {
   // ============================================================
 
   static Future<void> requestNotificationPermission() async {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
     final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
     await messaging.setForegroundNotificationPresentationOptions(
@@ -89,6 +98,11 @@ class NoficationService {
 
   static Future<String?> getToken() async {
     try {
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      }
       final FirebaseMessaging messaging =
           FirebaseMessaging.instance;
 

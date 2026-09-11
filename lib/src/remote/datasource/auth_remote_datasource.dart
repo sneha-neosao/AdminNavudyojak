@@ -12,12 +12,14 @@ import '../models/customers_model/customers_response.dart';
 import '../models/customers_model/customer_details_response.dart';
 import '../models/app_version_model/app_version_response.dart';
 import '../models/profile_model/profile_details_response.dart';
+import '../models/profile_model/update_fcm_token_response.dart';
 import '../models/notifications_model/notifications_response.dart';
 import '../models/notifications_model/notifications_count_response.dart';
 import '../models/notifications_model/mark_all_read_response.dart';
 import '../models/analytics_model/business_performance_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
+import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
@@ -92,6 +94,12 @@ abstract class RemoteDataSource {
   Future<BusinessPerformanceResponse> BusinessPerformance();
   // ignore: non_constant_identifier_names
   Future<BusinessPerformanceResponse> business_performance();
+
+  /// FCM Token Update
+  // ignore: non_constant_identifier_names
+  Future<UpdateFcmTokenResponse> UpdateFcmToken(UpdateFcmTokenParams params);
+  // ignore: non_constant_identifier_names
+  Future<UpdateFcmTokenResponse> update_fcm_token(UpdateFcmTokenParams params);
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -538,6 +546,48 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = BusinessPerformanceResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<UpdateFcmTokenResponse> UpdateFcmToken(
+      UpdateFcmTokenParams params) async {
+    return update_fcm_token(params);
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<UpdateFcmTokenResponse> update_fcm_token(
+      UpdateFcmTokenParams params) async {
+    try {
+      final response = await _helper.execute(
+        method: Method.put,
+        url: ApiUrl.updateFcmToken,
+        data: {
+          'fcm_token': params.fcmToken,
+        },
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final respData = UpdateFcmTokenResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

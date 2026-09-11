@@ -146,4 +146,13 @@ void configureDepedencies() {
   getIt.registerFactory<BusinessPerformanceBloc>(
     () => BusinessPerformanceBloc(getIt<BusinessPerformanceUseCase>()),
   );
+
+  /// Update FCM Token registered per Rule 4
+  getIt.registerLazySingleton<UpdateFcmTokenUseCase>(
+    () => UpdateFcmTokenUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<UpdateFcmTokenBloc>(
+    () => UpdateFcmTokenBloc(getIt<UpdateFcmTokenUseCase>()),
+  );
 }
