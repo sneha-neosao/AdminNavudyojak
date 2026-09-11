@@ -1,0 +1,65 @@
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+import 'package:admin_navudyojak/src/configs/injector/injector.dart';
+
+final getIt = GetIt.I;
+
+void configureDepedencies() {
+  getIt.registerLazySingleton<Dio>(() {
+    final dio = Dio(
+      BaseOptions(
+        validateStatus: (status) => status != null && status < 400,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+      ),
+    );
+
+    dio.interceptors.add(ApiInterceptor(dio));
+    return dio;
+  });
+
+  /// App Essentials
+  getIt.registerLazySingleton(() => ThemeBloc());
+
+  getIt.registerLazySingleton(() => TranslateBloc());
+
+  getIt.registerLazySingleton(() => AppRouteConf());
+
+  /// API Helper & Network
+  getIt.registerLazySingleton(() => NetworkInfo());
+
+  getIt.registerLazySingleton(() => ApiHelper(getIt<Dio>()));
+
+  /// Remote DataSource & Repository (located at remote folder)
+  getIt.registerLazySingleton<RemoteDataSource>(
+    () => RemoteDataSourceImpl(getIt<ApiHelper>()),
+  );
+
+  getIt.registerLazySingleton<Repository>(
+    () => AuthRepositoryImpl(
+      getIt<RemoteDataSource>(),
+      getIt<NetworkInfo>(),
+    ),
+  );
+
+  /// UseCases
+  getIt.registerLazySingleton<AuthLoginUseCase>(
+    () => AuthLoginUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerLazySingleton<LogoutUseCase>(
+    () => LogoutUseCase(getIt<Repository>()),
+  );
+
+  /// Auth & Login BLoCs registered per Rule 4
+  getIt.registerFactory<AuthLoginBloc>(
+    () => AuthLoginBloc(
+      getIt<AuthLoginUseCase>(),
+      getIt<LogoutUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<AuthLoginFormBloc>(
+    () => AuthLoginFormBloc(),
+  );
+}
