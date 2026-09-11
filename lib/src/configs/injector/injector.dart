@@ -6,6 +6,7 @@ export '../../core/api/api_helper.dart';
 export '../../core/api/api_interceptor.dart';
 export '../../core/api/api_url.dart';
 export '../../core/utils/logger.dart';
+export '../../core/deeplink/deep_link_service.dart';
 export '../../remote/datasource/auth_remote_datasource.dart';
 export '../../remote/repositories/repository_impl.dart';
 export '../../features/login/bloc/auth_login_bloc/auth_login_bloc.dart';

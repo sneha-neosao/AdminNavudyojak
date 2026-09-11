@@ -3,17 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+
 import 'configs/injector/injector.dart';
 import 'configs/injector/injector_conf.dart';
-import 'core/blocs/theme/theme_bloc.dart';
-import 'core/blocs/translate/translate_bloc.dart';
 import 'core/constants/list_translation_locale.dart';
+import 'core/localization/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/global_keys.dart';
-import 'routes/app_route_conf.dart';
-import 'routes/app_route_path.dart';
-
-import 'core/localization/app_localizations.dart';
 
 /// Root widget for the app. Handles initialization and routing.
 class MyApp extends StatefulWidget {
@@ -26,11 +22,26 @@ class MyApp extends StatefulWidget {
 /// State for MyApp. Sets up router and deep link listeners.
 class _MyAppState extends State<MyApp> {
   late final GoRouter _router;
+  late final DeepLinkService _deepLinkService;
 
   @override
   void initState() {
     super.initState();
     _router = getIt<AppRouteConf>().router;
+
+    _deepLinkService = getIt<DeepLinkService>();
+    _deepLinkService.initListener((uri) {
+      debugPrint("🔗 Received DeepLink URI: $uri");
+    });
+    _deepLinkService.checkInitialUri((uri) {
+      debugPrint("🔗 Initial DeepLink URI: $uri");
+    });
+  }
+
+  @override
+  void dispose() {
+    _deepLinkService.dispose();
+    super.dispose();
   }
 
   /// Builds the main app widget tree with theming, localization, and routing.
@@ -41,7 +52,7 @@ class _MyAppState extends State<MyApp> {
       designSize: const Size(390, 844),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (_, __) => GestureDetector(
+      builder: (context, child) => GestureDetector(
         onTap: () => primaryFocus?.unfocus(),
         child: MultiBlocProvider(
           providers: [

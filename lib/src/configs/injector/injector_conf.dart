@@ -25,6 +25,8 @@ void configureDepedencies() {
 
   getIt.registerLazySingleton(() => AppRouteConf());
 
+  getIt.registerLazySingleton(() => DeepLinkService());
+
   /// API Helper & Network
   getIt.registerLazySingleton(() => NetworkInfo());
 
@@ -36,10 +38,7 @@ void configureDepedencies() {
   );
 
   getIt.registerLazySingleton<Repository>(
-    () => AuthRepositoryImpl(
-      getIt<RemoteDataSource>(),
-      getIt<NetworkInfo>(),
-    ),
+    () => AuthRepositoryImpl(getIt<RemoteDataSource>(), getIt<NetworkInfo>()),
   );
 
   /// UseCases
@@ -77,19 +76,12 @@ void configureDepedencies() {
 
   /// Auth & Login BLoCs registered per Rule 4
   getIt.registerFactory<AuthLoginBloc>(
-    () => AuthLoginBloc(
-      getIt<AuthLoginUseCase>(),
-      getIt<LogoutUseCase>(),
-    ),
+    () => AuthLoginBloc(getIt<AuthLoginUseCase>(), getIt<LogoutUseCase>()),
   );
 
-  getIt.registerFactory<AuthLoginFormBloc>(
-    () => AuthLoginFormBloc(),
-  );
+  getIt.registerFactory<AuthLoginFormBloc>(() => AuthLoginFormBloc());
 
-  getIt.registerFactory<ForgotPasswordFormBloc>(
-    () => ForgotPasswordFormBloc(),
-  );
+  getIt.registerFactory<ForgotPasswordFormBloc>(() => ForgotPasswordFormBloc());
 
   getIt.registerFactory<ForgotPasswordBloc>(
     () => ForgotPasswordBloc(getIt<ForgotPasswordUseCase>()),
@@ -135,7 +127,8 @@ void configureDepedencies() {
   );
 
   getIt.registerFactory<MarkAllNotificationsReadBloc>(
-    () => MarkAllNotificationsReadBloc(getIt<MarkAllNotificationsReadUseCase>()),
+    () =>
+        MarkAllNotificationsReadBloc(getIt<MarkAllNotificationsReadUseCase>()),
   );
 
   /// Mark Single Notification Read UseCase and BLoC registered per Rule 4
