@@ -6,6 +6,7 @@ import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../widgets/app_snackbar_widget.dart';
 import 'account_confirmation_dialog.dart';
+import 'change_password_bottom_sheet_widget.dart';
 import 'logout_confirmation_dialog.dart';
 
 class AccountActionsCardWidget extends StatelessWidget {
@@ -18,11 +19,7 @@ class AccountActionsCardWidget extends StatelessWidget {
       onChangePasswordTap!();
       return;
     }
-    AppSnackBarWidget.show(
-      context,
-      message: 'Change password selected',
-      type: ToastType.info,
-    );
+    ChangePasswordBottomSheetWidget.show(context);
   }
 
   void _onLogoutTap(BuildContext context) {
