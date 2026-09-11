@@ -24,3 +24,6 @@ export '../../features/app_version/bloc/app_version_bloc/app_version_bloc.dart';
 export '../../remote/models/profile_model/profile_details_response.dart';
 export '../../features/profile/domain/usecase/profile_details_usecase.dart';
 export '../../features/profile/bloc/profile_details_bloc/profile_details_bloc.dart';
+export '../../remote/models/notifications_model/notifications_response.dart';
+export '../../features/notifications/domain/usecase/notifications_usecase.dart';
+export '../../features/notifications/bloc/notifications_bloc/notifications_bloc.dart';

@@ -14,8 +14,10 @@ import '../models/customers_model/customers_response.dart';
 import '../models/customers_model/customer_details_response.dart';
 import '../models/app_version_model/app_version_response.dart';
 import '../models/profile_model/profile_details_response.dart';
+import '../models/notifications_model/notifications_response.dart';
 import '../../features/customers/domain/usecase/customers_usecase.dart';
 import '../../features/app_version/domain/usecase/app_version_usecase.dart';
+import '../../features/notifications/domain/usecase/notifications_usecase.dart';
 
 /// Abstract Repository interface defining all data operations for the app
 abstract class Repository {
@@ -36,6 +38,10 @@ abstract class Repository {
   /// Profile
   // ignore: non_constant_identifier_names
   Future<Either<Failure, ProfileDetailsResponse>> profile_details(NoParams params);
+
+  /// Notifications
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, NotificationsResponse>> notifications_list(NotificationsParams params);
 }
 
 class AuthRepositoryImpl implements Repository {
@@ -261,6 +267,45 @@ class AuthRepositoryImpl implements Repository {
               respData.message?.isNotEmpty == true
                   ? respData.message!
                   : "Failed to fetch profile details",
+            ));
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, NotificationsResponse>> notifications_list(NotificationsParams params) {
+    return _networkInfo.check<NotificationsResponse>(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.notifications_list(
+            page: params.page,
+            limit: params.limit,
+          );
+
+          if (respData.success == false) {
+            return Left(ServerFailure(
+              respData.message?.isNotEmpty == true
+                  ? respData.message!
+                  : "Failed to fetch notifications",
             ));
           }
 

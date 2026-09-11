@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/theme/app_color.dart';
-import '../../../login/bloc/auth_login_bloc/auth_login_bloc.dart';
+import '../../bloc/notifications_bloc/notifications_bloc.dart';
 import '../../widgets/notifications_content_widget.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -17,8 +17,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AuthLoginBloc>(
-          create: (_) => getIt<AuthLoginBloc>(),
+        BlocProvider<NotificationsBloc>(
+          create: (_) =>
+              getIt<NotificationsBloc>()..add(const GetNotificationsEvent()),
         ),
       ],
       child: const Scaffold(

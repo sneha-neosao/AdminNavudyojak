@@ -52,6 +52,15 @@ class ApiUrl {
   static String appVersionCheckUrl({String appName = 'admin_app'}) =>
       "/common/app-versions/check/?app_name=$appName";
 
+  static const notifications = "/notifications";
+  static String notificationsUrl({int? page, int? limit}) {
+    final queryParams = <String>[];
+    if (page != null) queryParams.add("page=$page");
+    if (limit != null) queryParams.add("limit=$limit");
+    if (queryParams.isEmpty) return notifications;
+    return "$notifications?${queryParams.join('&')}";
+  }
+
   static const deleteAccount = "/auth/delete";
 }
 

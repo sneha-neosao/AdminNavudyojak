@@ -10,6 +10,7 @@ import 'package:admin_navudyojak/src/features/widgets/app_snackbar_widget.dart';
 import 'package:admin_navudyojak/src/routes/app_route_path.dart';
 import '../../bloc/auth_login_bloc/auth_login_bloc.dart';
 import '../../bloc/auth_login_form_bloc/auth_login_form_bloc.dart';
+import '../../widgets/forgot_password_bottom_sheet_widget.dart';
 import '../../widgets/login_button_widget.dart';
 import '../../widgets/login_header_widget.dart';
 import '../../widgets/login_input_widget.dart';
@@ -260,6 +261,14 @@ class _LoginScreenState extends State<LoginScreen>
                                             setState(() {
                                               _rememberMe = val ?? false;
                                             });
+                                          },
+                                          onForgotPassword: () {
+                                            ForgotPasswordBottomSheetWidget.show(
+                                              context,
+                                              initialEmail: _emailController
+                                                  .text
+                                                  .trim(),
+                                            );
                                           },
                                         ),
                                         28.hS,

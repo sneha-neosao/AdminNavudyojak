@@ -67,6 +67,10 @@ void configureDepedencies() {
     () => ProfileDetailsUseCase(getIt<Repository>()),
   );
 
+  getIt.registerLazySingleton<NotificationsUseCase>(
+    () => NotificationsUseCase(getIt<Repository>()),
+  );
+
   /// Auth & Login BLoCs registered per Rule 4
   getIt.registerFactory<AuthLoginBloc>(
     () => AuthLoginBloc(
@@ -97,5 +101,10 @@ void configureDepedencies() {
   /// Profile Details BLoC registered per Rule 4
   getIt.registerFactory<ProfileDetailsBloc>(
     () => ProfileDetailsBloc(getIt<ProfileDetailsUseCase>()),
+  );
+
+  /// Notifications BLoC registered per Rule 4
+  getIt.registerFactory<NotificationsBloc>(
+    () => NotificationsBloc(getIt<NotificationsUseCase>()),
   );
 }

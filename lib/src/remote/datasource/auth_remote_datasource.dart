@@ -12,6 +12,7 @@ import '../models/customers_model/customers_response.dart';
 import '../models/customers_model/customer_details_response.dart';
 import '../models/app_version_model/app_version_response.dart';
 import '../models/profile_model/profile_details_response.dart';
+import '../models/notifications_model/notifications_response.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
@@ -59,6 +60,12 @@ abstract class RemoteDataSource {
   Future<ProfileDetailsResponse> ProfileDetails();
   // ignore: non_constant_identifier_names
   Future<ProfileDetailsResponse> profile_details();
+
+  /// Notifications
+  // ignore: non_constant_identifier_names
+  Future<NotificationsResponse> NotificationsList({int? page, int? limit});
+  // ignore: non_constant_identifier_names
+  Future<NotificationsResponse> notifications_list({int? page, int? limit});
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -323,6 +330,42 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = ProfileDetailsResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<NotificationsResponse> NotificationsList({int? page, int? limit}) async {
+    return notifications_list(page: page, limit: limit);
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<NotificationsResponse> notifications_list({int? page, int? limit}) async {
+    try {
+      final response = await _helper.execute(
+        method: Method.get,
+        url: ApiUrl.notificationsUrl(page: page, limit: limit),
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+          },
+        ),
+      );
+
+      final respData = NotificationsResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();
