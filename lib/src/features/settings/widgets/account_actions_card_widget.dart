@@ -2,8 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
+import '../../profile/bloc/profile_details_bloc/profile_details_bloc.dart';
 import '../../widgets/app_snackbar_widget.dart';
 import 'account_confirmation_dialog.dart';
 import 'change_password_bottom_sheet_widget.dart';
@@ -19,7 +22,15 @@ class AccountActionsCardWidget extends StatelessWidget {
       onChangePasswordTap!();
       return;
     }
-    ChangePasswordBottomSheetWidget.show(context);
+    String userId = '';
+    try {
+      final profileState = context.read<ProfileDetailsBloc>().state;
+      if (profileState is ProfileDetailsSuccessState) {
+        userId = profileState.data.data?.id ?? '';
+      }
+    } catch (_) {}
+
+    ChangePasswordBottomSheetWidget.show(context, userId: userId);
   }
 
   void _onLogoutTap(BuildContext context) {

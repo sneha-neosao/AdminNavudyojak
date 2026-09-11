@@ -29,6 +29,8 @@ import '../../features/notifications/domain/usecase/notifications_usecase.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
 import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
 import '../../features/home/domain/usecase/admin_dashboard_usecase.dart';
+import '../models/auth_model/change_password_response.dart';
+import '../../features/profile/domain/usecase/change_password_usecase.dart';
 
 /// Abstract Repository interface defining all data operations for the app
 abstract class Repository {
@@ -92,6 +94,12 @@ abstract class Repository {
   // ignore: non_constant_identifier_names
   Future<Either<Failure, UpdateFcmTokenResponse>> update_fcm_token(
     UpdateFcmTokenParams params,
+  );
+
+  /// Change Password
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, ChangePasswordResponse>> change_password(
+    ChangePasswordParams params,
   );
 }
 
@@ -692,6 +700,52 @@ class AuthRepositoryImpl implements Repository {
                 respData.message?.isNotEmpty == true
                     ? respData.message!
                     : "Failed to fetch admin dashboard data",
+              ),
+            );
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, ChangePasswordResponse>> change_password(
+    ChangePasswordParams params,
+  ) {
+    return _networkInfo.check(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.change_password(
+            userId: params.userId,
+            password: params.password,
+            passwordConfirm: params.passwordConfirm,
+          );
+
+          if (respData.success == false) {
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to change password",
               ),
             );
           }

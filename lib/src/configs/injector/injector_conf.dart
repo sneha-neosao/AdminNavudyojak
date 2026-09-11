@@ -166,4 +166,15 @@ void configureDepedencies() {
   getIt.registerFactory<AdminDashboardBloc>(
     () => AdminDashboardBloc(getIt<AdminDashboardUseCase>()),
   );
+
+  /// Change Password registered per Rule 4
+  getIt.registerLazySingleton<ChangePasswordUseCase>(
+    () => ChangePasswordUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<ChangePasswordFormBloc>(() => ChangePasswordFormBloc());
+
+  getIt.registerFactory<ChangePasswordBloc>(
+    () => ChangePasswordBloc(getIt<ChangePasswordUseCase>()),
+  );
 }

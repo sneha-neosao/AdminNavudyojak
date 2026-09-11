@@ -21,6 +21,7 @@ import '../models/notifications_model/mark_notification_read_response.dart';
 import '../models/analytics_model/business_performance_response.dart';
 import '../models/dashboard_model/admin_dashboard_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
+import '../models/auth_model/change_password_response.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
 import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
 
@@ -75,6 +76,19 @@ abstract class RemoteDataSource {
   Future<ProfileDetailsResponse> ProfileDetails();
   // ignore: non_constant_identifier_names
   Future<ProfileDetailsResponse> profile_details();
+
+  // ignore: non_constant_identifier_names
+  Future<ChangePasswordResponse> ChangePassword({
+    required String userId,
+    required String password,
+    required String passwordConfirm,
+  });
+  // ignore: non_constant_identifier_names
+  Future<ChangePasswordResponse> change_password({
+    required String userId,
+    required String password,
+    required String passwordConfirm,
+  });
 
   /// Notifications
   // ignore: non_constant_identifier_names
@@ -673,4 +687,52 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       throw ServerException();
     }
   }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ChangePasswordResponse> ChangePassword({
+    required String userId,
+    required String password,
+    required String passwordConfirm,
+  }) async {
+    try {
+      final response = await _helper.execute(
+        method: Method.post,
+        url: ApiUrl.changePassword(userId),
+        data: {"password": password, "password_confirm": passwordConfirm},
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final respData = ChangePasswordResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ChangePasswordResponse> change_password({
+    required String userId,
+    required String password,
+    required String passwordConfirm,
+  }) => ChangePassword(
+    userId: userId,
+    password: password,
+    passwordConfirm: passwordConfirm,
+  );
 }

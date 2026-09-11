@@ -43,6 +43,8 @@ class ApiUrl {
   static const dashboard = "/dashboard/";
 
   static const passwordUpdate = "/profile/update-password";
+  static String changePassword(String userId) =>
+      "/auth/change-password/$userId";
 
   static const profileUpdate = "/profile/update";
 
