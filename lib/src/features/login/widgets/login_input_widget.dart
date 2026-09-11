@@ -22,12 +22,12 @@ class LoginInputWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Mobile / Email Input
+        // Email Input
         LoginTextField<AuthLoginFormBloc>(
           controller: emailController,
           label: 'email'.tr(),
           hintText: 'enter_your_email'.tr(),
-          prefixIcon: Icons.phone_iphone_rounded,
+          prefixIcon: Icons.mail_outline_rounded,
           onChanged: (val) {
             final trimmed = val.trim();
             formBloc.add(LoginFormEmailChangedEvent(trimmed));

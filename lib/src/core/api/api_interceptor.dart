@@ -1,19 +1,14 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../configs/injector/injector.dart';
 import '../session/session_manager.dart';
-import '../../routes/app_route_path.dart';
 
 class ApiInterceptor extends Interceptor {
   final Dio dio;
   bool isRefreshing = false;
   bool _isLoggingOut = false;
   final List<void Function(String)> _requestsQueue = [];
-
-
-  Map<String, dynamic>? _cachedDeviceInfo;
 
   // Future<Map<String, dynamic>> _getDeviceInfo() async {
   //   if (_cachedDeviceInfo != null) return _cachedDeviceInfo!;

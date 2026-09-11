@@ -73,7 +73,7 @@ class _LoginTextFieldState<T> extends State<LoginTextField<T>> {
           obscureText: widget.isSecure ? _isVisible : false,
           onChanged: widget.onChanged,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColor.black,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -131,21 +131,21 @@ class _LoginTextFieldState<T> extends State<LoginTextField<T>> {
                   )
                 : null,
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: AppColor.subCardBg,
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             errorStyle: const TextStyle(
               fontSize: 11,
-              color: AppColor.bright_red,
+              color: AppColor.brightRed,
               height: 1.2,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+              borderSide: const BorderSide(color: AppColor.border, width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+              borderSide: const BorderSide(color: AppColor.border, width: 1.5),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -154,11 +154,11 @@ class _LoginTextFieldState<T> extends State<LoginTextField<T>> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: AppColor.bright_red, width: 1.5),
+              borderSide: const BorderSide(color: AppColor.brightRed, width: 1.5),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: AppColor.bright_red, width: 1.5),
+              borderSide: const BorderSide(color: AppColor.brightRed, width: 1.5),
             ),
           ),
         ),

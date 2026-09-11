@@ -31,8 +31,12 @@ class AuthRepositoryImpl implements Repository {
         try {
           final respData = await _remoteDataSource.login(params);
 
-          if (respData.status != null && respData.status != 200 && respData.success == false) {
-            return Left(CredentialFailure(respData.message ?? "Invalid credentials"));
+          if (respData.success == false) {
+            return Left(CredentialFailure(
+              respData.message?.isNotEmpty == true
+                  ? respData.message!
+                  : "Invalid credentials",
+            ));
           }
 
           // Save login status & full session object

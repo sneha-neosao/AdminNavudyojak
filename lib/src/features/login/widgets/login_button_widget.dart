@@ -25,6 +25,7 @@ class LoginButtonWidget extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColor.primary,
             foregroundColor: AppColor.pureWhite,
+            disabledBackgroundColor: AppColor.primary.withValues(alpha: 0.7),
             elevation: 2,
             shadowColor: AppColor.primary.withValues(alpha: 0.35),
             shape: RoundedRectangleBorder(
@@ -33,13 +34,17 @@ class LoginButtonWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
           child: isLoading
-              ? const CupertinoActivityIndicator(color: Colors.white, radius: 10)
+              ? const CupertinoActivityIndicator(
+                  color: AppColor.white,
+                  radius: 10,
+                )
               : Text(
                   'login.title'.tr(),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
+                    color: AppColor.white,
                   ),
                 ),
         ),

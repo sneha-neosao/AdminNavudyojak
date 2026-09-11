@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'package:equatable/equatable.dart';
 
-/// Null-safe model representing the API login response.
-class LoginResponse {
+/// Null-safe model representing the API login response adhering to Rule 12.
+class LoginResponse extends Equatable {
   final int? status;
   final bool? success;
   final String? message;
@@ -14,17 +15,22 @@ class LoginResponse {
     this.data,
   });
 
-  factory LoginResponse.fromRawJson(String str) =>
-      LoginResponse.fromJson(json.decode(str) as Map<String, dynamic>);
+  factory LoginResponse.fromRawJson(String str) {
+    try {
+      return LoginResponse.fromJson(json.decode(str) as Map<String, dynamic>);
+    } catch (_) {
+      return const LoginResponse();
+    }
+  }
 
   String toRawJson() => json.encode(toJson());
 
   factory LoginResponse.fromJson(Map<String, dynamic>? json) {
     if (json == null) return const LoginResponse();
     return LoginResponse(
-      status: json['status'] as int?,
-      success: json['success'] as bool?,
-      message: json['message'] as String?,
+      status: json['status'] as int? ?? (json['success'] == true ? 200 : null),
+      success: json['success'] as bool? ?? (json['status'] == 200 || json['status'] == 201),
+      message: json['message']?.toString() ?? '',
       data: json['data'] != null && json['data'] is Map<String, dynamic>
           ? LoginTokenData.fromJson(json['data'] as Map<String, dynamic>)
           : null,
@@ -37,9 +43,12 @@ class LoginResponse {
         'message': message,
         'data': data?.toJson(),
       };
+
+  @override
+  List<Object?> get props => [status, success, message, data];
 }
 
-class LoginTokenData {
+class LoginTokenData extends Equatable {
   final String? refresh;
   final String? access;
 
@@ -54,8 +63,8 @@ class LoginTokenData {
   factory LoginTokenData.fromJson(Map<String, dynamic>? json) {
     if (json == null) return const LoginTokenData();
     return LoginTokenData(
-      refresh: json['refresh'] as String?,
-      access: json['access'] as String?,
+      refresh: json['refresh']?.toString() ?? '',
+      access: json['access']?.toString() ?? '',
     );
   }
 
@@ -63,4 +72,7 @@ class LoginTokenData {
         'refresh': refresh,
         'access': access,
       };
+
+  @override
+  List<Object?> get props => [refresh, access];
 }

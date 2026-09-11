@@ -1,4 +1,3 @@
-import 'package:admin_navudyojak/src/features/widgets/app_snackbar_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +6,7 @@ import 'package:admin_navudyojak/src/configs/injector/injector_conf.dart';
 import 'package:admin_navudyojak/src/core/extensions/integer_sizedbox_extension.dart';
 import 'package:admin_navudyojak/src/core/session/session_manager.dart';
 import 'package:admin_navudyojak/src/core/theme/app_color.dart';
+import 'package:admin_navudyojak/src/features/widgets/app_snackbar_widget.dart';
 import 'package:admin_navudyojak/src/routes/app_route_path.dart';
 import '../../bloc/auth_login_bloc/auth_login_bloc.dart';
 import '../../bloc/auth_login_form_bloc/auth_login_form_bloc.dart';
@@ -36,6 +36,8 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
+    _loadSavedCredentials();
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -57,6 +59,17 @@ class _LoginScreenState extends State<LoginScreen>
     _animationController.forward();
   }
 
+  Future<void> _loadSavedCredentials() async {
+    final credentials = await SessionManager.getSavedCredentials();
+    if (credentials != null && mounted) {
+      setState(() {
+        _emailController.text = credentials['username'] ?? '';
+        _passwordController.text = credentials['password'] ?? '';
+        _rememberMe = true;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -69,20 +82,17 @@ class _LoginScreenState extends State<LoginScreen>
   void _login(BuildContext context) {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    // Temporarily commented out API call per user instruction
-    // final authForm = context.read<AuthLoginFormBloc>().state;
-    // context.read<AuthLoginBloc>().add(
-    //   AuthLoginEvent(
-    //     authForm.email.trim().isNotEmpty
-    //         ? authForm.email.trim()
-    //         : _emailController.text.trim(),
-    //     authForm.password.trim().isNotEmpty
-    //         ? authForm.password.trim()
-    //         : _passwordController.text.trim(),
-    //   ),
-    // );
+    final authForm = context.read<AuthLoginFormBloc>().state;
+    final email = authForm.email.trim().isNotEmpty
+        ? authForm.email.trim()
+        : _emailController.text.trim();
+    final password = authForm.password.trim().isNotEmpty
+        ? authForm.password.trim()
+        : _passwordController.text.trim();
 
-    context.go(AppRoute.home.path);
+    context.read<AuthLoginBloc>().add(
+          AuthLoginEvent(email, password),
+        );
   }
 
   @override
@@ -101,13 +111,12 @@ class _LoginScreenState extends State<LoginScreen>
           return BlocConsumer<AuthLoginBloc, AuthLoginState>(
             listener: (context, state) async {
               if (state is AuthLoginFailureState) {
-                AppSnackBarWidget();
+                AppSnackBarWidget.show(
+                  context,
+                  message: state.message,
+                  type: ToastType.error,
+                );
               } else if (state is AuthLoginSuccessState) {
-                await SessionManager.saveLoginStatus(true);
-                await SessionManager.saveUserSession(state.data);
-                if (state.data.data?.access != null) {
-                  await SessionManager.saveSessionId(state.data.data?.access);
-                }
                 if (_rememberMe) {
                   await SessionManager.saveCredentials(
                     _emailController.text.trim(),
@@ -115,7 +124,13 @@ class _LoginScreenState extends State<LoginScreen>
                   );
                 }
                 if (context.mounted) {
-                  AppSnackBarWidget();
+                  AppSnackBarWidget.show(
+                    context,
+                    message: state.data.message?.isNotEmpty == true
+                        ? state.data.message!
+                        : 'login.success_msg'.tr(),
+                    type: ToastType.success,
+                  );
                   context.go(AppRoute.home.path);
                 }
               }

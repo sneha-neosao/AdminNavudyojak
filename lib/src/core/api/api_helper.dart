@@ -2,9 +2,6 @@ import 'dart:io';
 import 'package:admin_navudyojak/src/features/widgets/app_snackbar_widget.dart';
 import 'package:dio/dio.dart';
 import 'package:admin_navudyojak/src/configs/injector/injector.dart';
-import 'package:admin_navudyojak/src/core/theme/app_color.dart';
-import '../network/network_checker.dart';
-import '../utils/logger.dart';
 import 'api_exception.dart';
 
 class ApiHelper {

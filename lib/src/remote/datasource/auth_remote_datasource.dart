@@ -31,12 +31,23 @@ class RemoteDataSourceImpl implements RemoteDataSource {
   @override
   Future<LoginResponse> login(LoginParams params) async {
     try {
-      var data = {"email": params.email, "password": params.password};
+      var data = {
+        "email": params.email,
+        "password": params.password,
+        "app_type": params.appType,
+      };
 
       final response = await _helper.execute(
         method: Method.post,
         url: ApiUrl.login,
         data: data,
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRFTOKEN': '7aKIiDw0PyKYMvkSD98l85bREOUXMiZKY3SA5bE32jbMslB6cazEsoap2mNFTFAk',
+          },
+        ),
       );
 
       final respData = LoginResponse.fromJson(response);
