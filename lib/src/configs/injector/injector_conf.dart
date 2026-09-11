@@ -164,4 +164,13 @@ void configureDepedencies() {
   getIt.registerFactory<UpdateFcmTokenBloc>(
     () => UpdateFcmTokenBloc(getIt<UpdateFcmTokenUseCase>()),
   );
+
+  /// Admin Dashboard registered per Rule 4
+  getIt.registerLazySingleton<AdminDashboardUseCase>(
+    () => AdminDashboardUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<AdminDashboardBloc>(
+    () => AdminDashboardBloc(getIt<AdminDashboardUseCase>()),
+  );
 }

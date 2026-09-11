@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
+
 import 'package:go_router/go_router.dart';
+
 import '../../../routes/app_route_path.dart';
 import '../../widgets/app_snackbar_widget.dart';
 import 'return_settlement_item.dart';
 
 class ReturnSettlementCardWidget extends StatelessWidget {
   final List<ReturnSettlementItem> items;
+  final int? pendingCount;
   final ValueChanged<ReturnSettlementItem>? onItemTap;
   final VoidCallback? onViewAllTap;
 
   const ReturnSettlementCardWidget({
     super.key,
     this.items = defaultItems,
+    this.pendingCount,
     this.onItemTap,
     this.onViewAllTap,
   });
@@ -62,10 +67,7 @@ class ReturnSettlementCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.card,
         borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(
-          color: AppColor.metricCardBorder,
-          width: 1.2,
-        ),
+        border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: AppColor.black.withValues(alpha: 0.03),
@@ -116,7 +118,7 @@ class ReturnSettlementCardWidget extends StatelessWidget {
           ),
           10.hS,
 
-          // Red "5 pending" Badge
+          // Red "pending" Badge
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
             decoration: BoxDecoration(
@@ -124,7 +126,7 @@ class ReturnSettlementCardWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(7.r),
             ),
             child: Text(
-              '${items.length} pending',
+              '${pendingCount ?? items.length} pending',
               style: theme.textTheme.labelSmall?.copyWith(
                 color: AppColor.white,
                 fontWeight: FontWeight.w700,
@@ -135,14 +137,19 @@ class ReturnSettlementCardWidget extends StatelessWidget {
           ),
           16.hS,
 
-          // List of Settlement Cards
-          ...List.generate(items.length, (index) {
-            final item = items[index];
-            return Padding(
-              padding: EdgeInsets.only(bottom: index == items.length - 1 ? 0 : 10.h),
-              child: _buildSettlementItemCard(context, item),
-            );
-          }),
+          // List of Settlement Cards or Empty State
+          if (items.isEmpty)
+            _buildEmptyState(theme)
+          else
+            ...List.generate(items.length, (index) {
+              final item = items[index];
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == items.length - 1 ? 0 : 10.h,
+                ),
+                child: _buildSettlementItemCard(context, item),
+              );
+            }),
           14.hS,
 
           // View all requests button
@@ -196,7 +203,10 @@ class ReturnSettlementCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildSettlementItemCard(BuildContext context, ReturnSettlementItem item) {
+  Widget _buildSettlementItemCard(
+    BuildContext context,
+    ReturnSettlementItem item,
+  ) {
     final theme = Theme.of(context);
 
     return Material(
@@ -221,10 +231,7 @@ class ReturnSettlementCardWidget extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(
-              color: AppColor.metricCardBorder,
-              width: 1.1,
-            ),
+            border: Border.all(color: AppColor.metricCardBorder, width: 1.1),
           ),
           child: Row(
             children: [
@@ -313,6 +320,31 @@ class ReturnSettlementCardWidget extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(ThemeData theme) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 24.h),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Icon(
+            Icons.check_circle_outline_rounded,
+            size: 32.sp,
+            color: AppColor.customerBadgeGreen,
+          ),
+          8.hS,
+          Text(
+            'No pending settlement requests',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColor.textSecondary,
+              fontSize: 13.sp,
+            ),
+          ),
+        ],
       ),
     );
   }

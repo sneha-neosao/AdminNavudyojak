@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
+import '../../../remote/models/dashboard_model/admin_dashboard_response.dart';
 
 class WeeklyMovementCardWidget extends StatefulWidget {
   final String title;
@@ -9,6 +12,10 @@ class WeeklyMovementCardWidget extends StatefulWidget {
   final String salesValue;
   final String productionValue;
   final String expensesValue;
+  final List<DailyBreakdownItem>? dailyBreakdown;
+  final String currentPeriod;
+  final ValueChanged<String>? onPeriodChanged;
+  final bool isLoading;
 
   const WeeklyMovementCardWidget({
     super.key,
@@ -17,25 +24,42 @@ class WeeklyMovementCardWidget extends StatefulWidget {
     this.salesValue = '₹4.82L',
     this.productionValue = '1,842',
     this.expensesValue = '₹68.4K',
+    this.dailyBreakdown,
+    this.currentPeriod = 'this_week',
+    this.onPeriodChanged,
+    this.isLoading = false,
   });
 
   @override
-  State<WeeklyMovementCardWidget> createState() => _WeeklyMovementCardWidgetState();
+  State<WeeklyMovementCardWidget> createState() =>
+      _WeeklyMovementCardWidgetState();
 }
 
 class _WeeklyMovementCardWidgetState extends State<WeeklyMovementCardWidget> {
-  String _selectedFilter = 'This week';
-  final List<String> _filterOptions = const [
+  static const List<String> _filterOptions = [
     'This week',
-    'Last week',
     'This month',
+    'This year',
   ];
+
+  static const Map<String, String> _periodToLabel = {
+    'this_week': 'This week',
+    'this_month': 'This month',
+    'this_year': 'This year',
+  };
+
+  static const Map<String, String> _labelToPeriod = {
+    'This week': 'this_week',
+    'This month': 'this_month',
+    'This year': 'this_year',
+  };
 
   static const List<String> _days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final selectedLabel = _periodToLabel[widget.currentPeriod] ?? 'This week';
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
@@ -43,10 +67,7 @@ class _WeeklyMovementCardWidgetState extends State<WeeklyMovementCardWidget> {
       decoration: BoxDecoration(
         color: AppColor.card,
         borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(
-          color: AppColor.metricCardBorder,
-          width: 1.2,
-        ),
+        border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: AppColor.black.withValues(alpha: 0.03),
@@ -91,11 +112,12 @@ class _WeeklyMovementCardWidgetState extends State<WeeklyMovementCardWidget> {
               borderRadius: BorderRadius.circular(12.r),
               side: const BorderSide(color: AppColor.metricCardBorder),
             ),
-            initialValue: _selectedFilter,
-            onSelected: (val) {
-              setState(() {
-                _selectedFilter = val;
-              });
+            initialValue: selectedLabel,
+            onSelected: (label) {
+              final periodCode = _labelToPeriod[label] ?? 'this_week';
+              if (periodCode != widget.currentPeriod) {
+                widget.onPeriodChanged?.call(periodCode);
+              }
             },
             itemBuilder: (context) => _filterOptions
                 .map(
@@ -105,10 +127,10 @@ class _WeeklyMovementCardWidgetState extends State<WeeklyMovementCardWidget> {
                       item,
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontSize: 13.sp,
-                        fontWeight: item == _selectedFilter
+                        fontWeight: item == selectedLabel
                             ? FontWeight.w700
                             : FontWeight.w500,
-                        color: item == _selectedFilter
+                        color: item == selectedLabel
                             ? AppColor.primary
                             : AppColor.charcoal,
                       ),
@@ -131,7 +153,7 @@ class _WeeklyMovementCardWidgetState extends State<WeeklyMovementCardWidget> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    _selectedFilter,
+                    selectedLabel,
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w500,
@@ -151,65 +173,140 @@ class _WeeklyMovementCardWidgetState extends State<WeeklyMovementCardWidget> {
           ),
           20.hS,
 
-          // Chart canvas area (blank chart area)
-          110.hS,
+          // Content area wrapped in Skeletonizer for per-card loading on period change
+          Skeletonizer(
+            enabled: widget.isLoading,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Chart canvas area with daily breakdown bars
+                SizedBox(
+                  height: 100.h,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(7, (index) {
+                      DailyBreakdownItem? item;
+                      if (widget.dailyBreakdown != null &&
+                          index < widget.dailyBreakdown!.length) {
+                        item = widget.dailyBreakdown![index];
+                      }
 
-          // Days Axis (M T W T F S S)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: _days.map((day) {
-              return Expanded(
-                child: Center(
-                  child: Text(
-                    day,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppColor.slateGrey,
-                    ),
-                    softWrap: true,
+                      final salesVal = item?.sales ?? 0;
+                      final num maxSales = (widget.dailyBreakdown ?? [])
+                          .map((e) => e.sales ?? 0)
+                          .fold<num>(
+                            0,
+                            (prev, elem) => elem > prev ? elem : prev,
+                          );
+
+                      final double barRatio = maxSales > 0
+                          ? (salesVal / maxSales).clamp(0.12, 1.0)
+                          : 0.12;
+                      final bool hasSales = salesVal > 0;
+
+                      return Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 6.w),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                height: 76.h * barRatio,
+                                decoration: BoxDecoration(
+                                  color: hasSales
+                                      ? AppColor.cockpitOrange
+                                      : AppColor.metricCardBorder.withValues(
+                                          alpha: 0.7,
+                                        ),
+                                  borderRadius: BorderRadius.circular(6.r),
+                                  gradient: hasSales
+                                      ? const LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            AppColor.cockpitOrange,
+                                            AppColor.primary,
+                                          ],
+                                        )
+                                      : null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
                   ),
                 ),
-              );
-            }).toList(),
-          ),
-          12.hS,
+                10.hS,
 
-          // Divider Line
-          Divider(
-            color: AppColor.metricCardBorder.withValues(alpha: 0.8),
-            height: 1,
-            thickness: 1,
-          ),
-          14.hS,
+                // Days Axis (M T W T F S S)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(7, (index) {
+                    String dayText = _days[index];
+                    if (widget.dailyBreakdown != null &&
+                        index < widget.dailyBreakdown!.length) {
+                      dayText =
+                          widget.dailyBreakdown![index].dayShort ?? dayText;
+                    }
 
-          // Bottom 3 Metrics Row
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricItem(
-                  context,
-                  label: 'Sales',
-                  value: widget.salesValue,
+                    return Expanded(
+                      child: Center(
+                        child: Text(
+                          dayText,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColor.slateGrey,
+                          ),
+                          softWrap: true,
+                        ),
+                      ),
+                    );
+                  }),
                 ),
-              ),
-              12.wS,
-              Expanded(
-                child: _buildMetricItem(
-                  context,
-                  label: 'Production',
-                  value: widget.productionValue,
+                12.hS,
+
+                // Divider Line
+                Divider(
+                  color: AppColor.metricCardBorder.withValues(alpha: 0.8),
+                  height: 1,
+                  thickness: 1,
                 ),
-              ),
-              12.wS,
-              Expanded(
-                child: _buildMetricItem(
-                  context,
-                  label: 'Expenses',
-                  value: widget.expensesValue,
+                14.hS,
+
+                // Bottom 3 Metrics Row
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildMetricItem(
+                        context,
+                        label: 'Sales',
+                        value: widget.salesValue,
+                      ),
+                    ),
+                    12.wS,
+                    Expanded(
+                      child: _buildMetricItem(
+                        context,
+                        label: 'Production',
+                        value: widget.productionValue,
+                      ),
+                    ),
+                    12.wS,
+                    Expanded(
+                      child: _buildMetricItem(
+                        context,
+                        label: 'Expenses',
+                        value: widget.expensesValue,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

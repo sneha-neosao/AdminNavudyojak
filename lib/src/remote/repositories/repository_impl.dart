@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../core/api/api_exception.dart';
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
@@ -20,12 +21,14 @@ import '../models/notifications_model/notifications_count_response.dart';
 import '../models/notifications_model/mark_all_read_response.dart';
 import '../models/notifications_model/mark_notification_read_response.dart';
 import '../models/analytics_model/business_performance_response.dart';
+import '../models/dashboard_model/admin_dashboard_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
 import '../../features/customers/domain/usecase/customers_usecase.dart';
 import '../../features/app_version/domain/usecase/app_version_usecase.dart';
 import '../../features/notifications/domain/usecase/notifications_usecase.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
 import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
+import '../../features/home/domain/usecase/admin_dashboard_usecase.dart';
 
 /// Abstract Repository interface defining all data operations for the app
 abstract class Repository {
@@ -33,39 +36,63 @@ abstract class Repository {
   Future<Either<Failure, LoginResponse>> login(LoginParams params);
   Future<Either<Failure, LogoutResponse>> logout(NoParams params);
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, ForgotPasswordResponse>> forgot_password(ForgotPasswordParams params);
+  Future<Either<Failure, ForgotPasswordResponse>> forgot_password(
+    ForgotPasswordParams params,
+  );
 
   /// Customers
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, CustomersResponse>> customers_list(CustomersParams params);
+  Future<Either<Failure, CustomersResponse>> customers_list(
+    CustomersParams params,
+  );
   // ignore: non_constant_identifier_names
   Future<Either<Failure, CustomerDetailsResponse>> customer_details(String id);
 
   /// App Version
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, AppVersionResponse>> app_version_check(AppVersionParams params);
+  Future<Either<Failure, AppVersionResponse>> app_version_check(
+    AppVersionParams params,
+  );
 
   /// Profile
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, ProfileDetailsResponse>> profile_details(NoParams params);
+  Future<Either<Failure, ProfileDetailsResponse>> profile_details(
+    NoParams params,
+  );
 
   /// Notifications
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, NotificationsResponse>> notifications_list(NotificationsParams params);
+  Future<Either<Failure, NotificationsResponse>> notifications_list(
+    NotificationsParams params,
+  );
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, NotificationsCountResponse>> notifications_counts(NoParams params);
+  Future<Either<Failure, NotificationsCountResponse>> notifications_counts(
+    NoParams params,
+  );
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, MarkAllNotificationsReadResponse>> mark_all_notifications_as_read(NoParams params);
+  Future<Either<Failure, MarkAllNotificationsReadResponse>>
+  mark_all_notifications_as_read(NoParams params);
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, MarkNotificationReadResponse>> mark_notification_as_read(String id);
+  Future<Either<Failure, MarkNotificationReadResponse>>
+  mark_notification_as_read(String id);
 
   /// Analytics
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, BusinessPerformanceResponse>> business_performance(NoParams params);
+  Future<Either<Failure, BusinessPerformanceResponse>> business_performance(
+    NoParams params,
+  );
+
+  /// Dashboard
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, AdminDashboardResponse>> admin_dashboard(
+    AdminDashboardParams params,
+  );
 
   /// FCM Token Update
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, UpdateFcmTokenResponse>> update_fcm_token(UpdateFcmTokenParams params);
+  Future<Either<Failure, UpdateFcmTokenResponse>> update_fcm_token(
+    UpdateFcmTokenParams params,
+  );
 }
 
 class AuthRepositoryImpl implements Repository {
@@ -82,11 +109,13 @@ class AuthRepositoryImpl implements Repository {
           final respData = await _remoteDataSource.login(params);
 
           if (respData.success == false) {
-            return Left(CredentialFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Invalid credentials",
-            ));
+            return Left(
+              CredentialFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Invalid credentials",
+              ),
+            );
           }
 
           // Save login status & full session object
@@ -94,10 +123,12 @@ class AuthRepositoryImpl implements Repository {
           await SessionManager.saveUserSession(respData);
 
           // Save tokens to their dedicated keys so ApiInterceptor can read them
-          if (respData.data?.accessToken != null && respData.data!.accessToken!.isNotEmpty) {
+          if (respData.data?.accessToken != null &&
+              respData.data!.accessToken!.isNotEmpty) {
             await SessionManager.saveSessionId(respData.data?.accessToken);
           }
-          if (respData.data?.refreshToken != null && respData.data!.refreshToken!.isNotEmpty) {
+          if (respData.data?.refreshToken != null &&
+              respData.data!.refreshToken!.isNotEmpty) {
             await SessionManager.saveRefreshToken(respData.data?.refreshToken);
           }
 
@@ -113,7 +144,9 @@ class AuthRepositoryImpl implements Repository {
       },
       notConnected: () async {
         try {
-          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -132,11 +165,13 @@ class AuthRepositoryImpl implements Repository {
           final respData = await _remoteDataSource.logout(token, refreshToken);
 
           if (respData.success == false) {
-            return Left(CredentialFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Logout failed",
-            ));
+            return Left(
+              CredentialFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Logout failed",
+              ),
+            );
           }
 
           // Clear session and invalidate login status
@@ -155,7 +190,9 @@ class AuthRepositoryImpl implements Repository {
       },
       notConnected: () async {
         try {
-          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -165,7 +202,9 @@ class AuthRepositoryImpl implements Repository {
 
   @override
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, CustomersResponse>> customers_list(CustomersParams params) {
+  Future<Either<Failure, CustomersResponse>> customers_list(
+    CustomersParams params,
+  ) {
     return _networkInfo.check<CustomersResponse>(
       connected: () async {
         try {
@@ -179,11 +218,13 @@ class AuthRepositoryImpl implements Repository {
           );
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to retrieve customers",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to retrieve customers",
+              ),
+            );
           }
 
           return Right(respData);
@@ -198,7 +239,9 @@ class AuthRepositoryImpl implements Repository {
       },
       notConnected: () async {
         try {
-          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -215,11 +258,13 @@ class AuthRepositoryImpl implements Repository {
           final respData = await _remoteDataSource.customer_details(id);
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to retrieve customer details",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to retrieve customer details",
+              ),
+            );
           }
 
           return Right(respData);
@@ -234,7 +279,9 @@ class AuthRepositoryImpl implements Repository {
       },
       notConnected: () async {
         try {
-          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -244,18 +291,24 @@ class AuthRepositoryImpl implements Repository {
 
   @override
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, AppVersionResponse>> app_version_check(AppVersionParams params) {
+  Future<Either<Failure, AppVersionResponse>> app_version_check(
+    AppVersionParams params,
+  ) {
     return _networkInfo.check<AppVersionResponse>(
       connected: () async {
         try {
-          final respData = await _remoteDataSource.app_version_check(appName: params.appName);
+          final respData = await _remoteDataSource.app_version_check(
+            appName: params.appName,
+          );
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to check app version",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to check app version",
+              ),
+            );
           }
 
           return Right(respData);
@@ -270,7 +323,9 @@ class AuthRepositoryImpl implements Repository {
       },
       notConnected: () async {
         try {
-          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -280,18 +335,22 @@ class AuthRepositoryImpl implements Repository {
 
   @override
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, ProfileDetailsResponse>> profile_details(NoParams params) {
+  Future<Either<Failure, ProfileDetailsResponse>> profile_details(
+    NoParams params,
+  ) {
     return _networkInfo.check<ProfileDetailsResponse>(
       connected: () async {
         try {
           final respData = await _remoteDataSource.profile_details();
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to fetch profile details",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to fetch profile details",
+              ),
+            );
           }
 
           return Right(respData);
@@ -306,7 +365,9 @@ class AuthRepositoryImpl implements Repository {
       },
       notConnected: () async {
         try {
-          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -316,7 +377,9 @@ class AuthRepositoryImpl implements Repository {
 
   @override
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, NotificationsResponse>> notifications_list(NotificationsParams params) {
+  Future<Either<Failure, NotificationsResponse>> notifications_list(
+    NotificationsParams params,
+  ) {
     return _networkInfo.check<NotificationsResponse>(
       connected: () async {
         try {
@@ -327,11 +390,13 @@ class AuthRepositoryImpl implements Repository {
           );
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to fetch notifications",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to fetch notifications",
+              ),
+            );
           }
 
           return Right(respData);
@@ -346,7 +411,9 @@ class AuthRepositoryImpl implements Repository {
       },
       notConnected: () async {
         try {
-          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -357,18 +424,21 @@ class AuthRepositoryImpl implements Repository {
   @override
   // ignore: non_constant_identifier_names
   Future<Either<Failure, ForgotPasswordResponse>> forgot_password(
-      ForgotPasswordParams params) async {
+    ForgotPasswordParams params,
+  ) async {
     return _networkInfo.check(
       connected: () async {
         try {
           final respData = await _remoteDataSource.forgot_password(params);
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to send reset link",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to send reset link",
+              ),
+            );
           }
 
           return Right(respData);
@@ -383,7 +453,9 @@ class AuthRepositoryImpl implements Repository {
       },
       notConnected: () async {
         try {
-          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -394,56 +466,21 @@ class AuthRepositoryImpl implements Repository {
   @override
   // ignore: non_constant_identifier_names
   Future<Either<Failure, NotificationsCountResponse>> notifications_counts(
-      NoParams params) async {
+    NoParams params,
+  ) async {
     return _networkInfo.check(
       connected: () async {
         try {
           final respData = await _remoteDataSource.notifications_counts();
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to fetch notification counts",
-            ));
-          }
-
-          return Right(respData);
-        } on ServerException {
-          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
-        } catch (e) {
-          if (e is ApiException) {
-            return Left(ApiFailure(e.message));
-          }
-          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
-        }
-      },
-      notConnected: () async {
-        try {
-          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
-        } on CacheException {
-          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
-        }
-      },
-    );
-  }
-
-  @override
-  // ignore: non_constant_identifier_names
-  Future<Either<Failure, MarkAllNotificationsReadResponse>> mark_all_notifications_as_read(
-      NoParams params) async {
-    return _networkInfo.check(
-      connected: () async {
-        try {
-          final respData =
-              await _remoteDataSource.mark_all_notifications_as_read();
-
-          if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to mark notifications as read",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to fetch notification counts",
+              ),
+            );
           }
 
           return Right(respData);
@@ -459,7 +496,50 @@ class AuthRepositoryImpl implements Repository {
       notConnected: () async {
         try {
           return Left(
-              InternetFailure(mapFailureToMessage(InternetFailure(""))));
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, MarkAllNotificationsReadResponse>>
+  mark_all_notifications_as_read(NoParams params) async {
+    return _networkInfo.check(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource
+              .mark_all_notifications_as_read();
+
+          if (respData.success == false) {
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to mark notifications as read",
+              ),
+            );
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -470,18 +550,21 @@ class AuthRepositoryImpl implements Repository {
   @override
   // ignore: non_constant_identifier_names
   Future<Either<Failure, BusinessPerformanceResponse>> business_performance(
-      NoParams params) async {
+    NoParams params,
+  ) async {
     return _networkInfo.check(
       connected: () async {
         try {
           final respData = await _remoteDataSource.business_performance();
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to fetch business performance analytics",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to fetch business performance analytics",
+              ),
+            );
           }
 
           return Right(respData);
@@ -497,7 +580,8 @@ class AuthRepositoryImpl implements Repository {
       notConnected: () async {
         try {
           return Left(
-              InternetFailure(mapFailureToMessage(InternetFailure(""))));
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -508,18 +592,21 @@ class AuthRepositoryImpl implements Repository {
   @override
   // ignore: non_constant_identifier_names
   Future<Either<Failure, UpdateFcmTokenResponse>> update_fcm_token(
-      UpdateFcmTokenParams params) async {
+    UpdateFcmTokenParams params,
+  ) async {
     return _networkInfo.check(
       connected: () async {
         try {
           final respData = await _remoteDataSource.update_fcm_token(params);
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to update FCM token",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to update FCM token",
+              ),
+            );
           }
 
           return Right(respData);
@@ -535,7 +622,8 @@ class AuthRepositoryImpl implements Repository {
       notConnected: () async {
         try {
           return Left(
-              InternetFailure(mapFailureToMessage(InternetFailure(""))));
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }
@@ -545,19 +633,23 @@ class AuthRepositoryImpl implements Repository {
 
   @override
   // ignore: non_constant_identifier_names
-  Future<Either<Failure, MarkNotificationReadResponse>> mark_notification_as_read(
-      String id) async {
+  Future<Either<Failure, MarkNotificationReadResponse>>
+  mark_notification_as_read(String id) async {
     return _networkInfo.check(
       connected: () async {
         try {
-          final respData = await _remoteDataSource.mark_notification_as_read(id);
+          final respData = await _remoteDataSource.mark_notification_as_read(
+            id,
+          );
 
           if (respData.success == false) {
-            return Left(ServerFailure(
-              respData.message?.isNotEmpty == true
-                  ? respData.message!
-                  : "Failed to mark notification as read",
-            ));
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to mark notification as read",
+              ),
+            );
           }
 
           return Right(respData);
@@ -573,7 +665,52 @@ class AuthRepositoryImpl implements Repository {
       notConnected: () async {
         try {
           return Left(
-              InternetFailure(mapFailureToMessage(InternetFailure(""))));
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, AdminDashboardResponse>> admin_dashboard(
+    AdminDashboardParams params,
+  ) {
+    return _networkInfo.check(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.admin_dashboard(
+            period: params.period,
+          );
+
+          if (respData.success == false) {
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to fetch admin dashboard data",
+              ),
+            );
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
         } on CacheException {
           return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
         }

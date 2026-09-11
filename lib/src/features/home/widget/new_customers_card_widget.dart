@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
+
 import 'package:go_router/go_router.dart';
+
 import '../../../routes/app_route_path.dart';
 import '../../widgets/app_snackbar_widget.dart';
 import 'new_customer_item.dart';
 
 class NewCustomersCardWidget extends StatelessWidget {
   final List<NewCustomerItem> items;
+  final int? newThisWeekCount;
   final ValueChanged<NewCustomerItem>? onItemTap;
   final VoidCallback? onViewAllTap;
 
   const NewCustomersCardWidget({
     super.key,
     this.items = defaultCustomers,
+    this.newThisWeekCount,
     this.onItemTap,
     this.onViewAllTap,
   });
@@ -62,10 +67,7 @@ class NewCustomersCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.card,
         borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(
-          color: AppColor.metricCardBorder,
-          width: 1.2,
-        ),
+        border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: AppColor.black.withValues(alpha: 0.03),
@@ -102,7 +104,7 @@ class NewCustomersCardWidget extends StatelessWidget {
           ),
           10.hS,
 
-          // Green "24 this week" Badge
+          // Green "this week" Badge
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
             decoration: BoxDecoration(
@@ -110,7 +112,7 @@ class NewCustomersCardWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(7.r),
             ),
             child: Text(
-              '24 this week',
+              '${newThisWeekCount ?? items.length} this week',
               style: theme.textTheme.labelSmall?.copyWith(
                 color: AppColor.white,
                 fontWeight: FontWeight.w700,
@@ -121,14 +123,19 @@ class NewCustomersCardWidget extends StatelessWidget {
           ),
           16.hS,
 
-          // List of Customers Cards
-          ...List.generate(items.length, (index) {
-            final item = items[index];
-            return Padding(
-              padding: EdgeInsets.only(bottom: index == items.length - 1 ? 0 : 10.h),
-              child: _buildCustomerCard(context, item),
-            );
-          }),
+          // List of Customers Cards or Empty State
+          if (items.isEmpty)
+            _buildEmptyState(theme)
+          else
+            ...List.generate(items.length, (index) {
+              final item = items[index];
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == items.length - 1 ? 0 : 10.h,
+                ),
+                child: _buildCustomerCard(context, item),
+              );
+            }),
           14.hS,
 
           // View all customers button
@@ -207,10 +214,7 @@ class NewCustomersCardWidget extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(
-              color: AppColor.metricCardBorder,
-              width: 1.1,
-            ),
+            border: Border.all(color: AppColor.metricCardBorder, width: 1.1),
           ),
           child: Row(
             children: [
@@ -297,6 +301,31 @@ class NewCustomersCardWidget extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(ThemeData theme) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 24.h),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Icon(
+            Icons.people_outline_rounded,
+            size: 32.sp,
+            color: AppColor.slateGrey,
+          ),
+          8.hS,
+          Text(
+            'No new customers this week',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColor.textSecondary,
+              fontSize: 13.sp,
+            ),
+          ),
+        ],
       ),
     );
   }

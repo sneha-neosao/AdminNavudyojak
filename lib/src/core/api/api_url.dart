@@ -70,7 +70,13 @@ class ApiUrl {
 
   static const businessPerformance =
       "/admin-app/analytics/business-performance";
+  static const adminDashboard = "/admin-app/dashboard";
+  static String adminDashboardUrl({String? period}) {
+    if (period != null && period.isNotEmpty) {
+      return "$adminDashboard?period=$period";
+    }
+    return adminDashboard;
+  }
 
   static const deleteAccount = "/auth/delete";
 }
-
