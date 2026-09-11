@@ -9,13 +9,13 @@ import '../../core/utils/failure_converter.dart';
 import '../../features/login/domain/usecase/login_usecase.dart';
 import '../datasource/auth_remote_datasource.dart';
 import '../models/auth_model/Login_response.dart';
-import '../models/common_response.dart';
+import '../models/auth_model/logout_response.dart';
 
 /// Abstract Repository interface defining all data operations for the app
 abstract class Repository {
   /// Authentication
   Future<Either<Failure, LoginResponse>> login(LoginParams params);
-  Future<Either<Failure, CommonResponse>> logout(NoParams params);
+  Future<Either<Failure, LogoutResponse>> logout(NoParams params);
 }
 
 class AuthRepositoryImpl implements Repository {
@@ -72,8 +72,8 @@ class AuthRepositoryImpl implements Repository {
   }
 
   @override
-  Future<Either<Failure, CommonResponse>> logout(NoParams params) {
-    return _networkInfo.check<CommonResponse>(
+  Future<Either<Failure, LogoutResponse>> logout(NoParams params) {
+    return _networkInfo.check<LogoutResponse>(
       connected: () async {
         try {
           String token = await SessionManager.getAuthToken() ?? "";
@@ -81,10 +81,16 @@ class AuthRepositoryImpl implements Repository {
 
           final respData = await _remoteDataSource.logout(token, refreshToken);
 
-          if (respData.status != 200) {
-            return Left(CredentialFailure(respData.message));
+          if (respData.success == false) {
+            return Left(CredentialFailure(
+              respData.message?.isNotEmpty == true
+                  ? respData.message!
+                  : "Logout failed",
+            ));
           }
 
+          // Clear session and invalidate login status
+          await SessionManager.saveLoginStatus(false);
           await SessionManager.clear();
 
           return Right(respData);

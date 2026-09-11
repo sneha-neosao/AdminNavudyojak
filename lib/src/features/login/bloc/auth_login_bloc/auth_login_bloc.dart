@@ -8,7 +8,7 @@ import 'package:admin_navudyojak/src/core/usecases/usecase.dart';
 import 'package:admin_navudyojak/src/core/utils/failure_converter.dart';
 import 'package:admin_navudyojak/src/core/utils/logger.dart';
 import 'package:admin_navudyojak/src/remote/models/auth_model/Login_response.dart';
-import 'package:admin_navudyojak/src/remote/models/common_response.dart';
+import 'package:admin_navudyojak/src/remote/models/auth_model/logout_response.dart';
 import '../../domain/usecase/login_usecase.dart';
 import '../../domain/usecase/logout_usecase.dart';
 

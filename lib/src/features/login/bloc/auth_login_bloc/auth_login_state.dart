@@ -53,7 +53,7 @@ class AuthCheckSignInStatusFailureState extends AuthLoginState {
 class AuthLogoutLoadingState extends AuthLoginState {}
 
 class AuthLogoutSuccessState extends AuthLoginState {
-  final CommonResponse data;
+  final LogoutResponse data;
 
   const AuthLogoutSuccessState(this.data);
 

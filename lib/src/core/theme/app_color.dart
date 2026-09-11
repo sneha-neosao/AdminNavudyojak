@@ -19,6 +19,8 @@ class AppColor {
   static const Color whiteDark = Color(0xFFFFFFFF);
   static const Color whiteShade = Color(0xFFFFFFFF);
   static const Color subCardBg = Color(0xFFF7F8FA);
+  static const Color dialogCancelBg = Color(0xFFF0F1F4);
+  static const Color dialogCancelText = Color(0xFF5A5D65);
 
   /// Text
   static const Color grey = Colors.grey;

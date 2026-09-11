@@ -1,39 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
-import '../../../routes/app_route_path.dart';
-import '../../login/bloc/auth_login_bloc/auth_login_bloc.dart';
 import '../../widgets/app_snackbar_widget.dart';
 import 'account_confirmation_dialog.dart';
+import 'logout_confirmation_dialog.dart';
 
 class AccountActionsCardWidget extends StatelessWidget {
   const AccountActionsCardWidget({super.key});
 
   void _onLogoutTap(BuildContext context) {
-    AccountConfirmationDialog.show(
-      context: context,
-      title: 'Log out',
-      message: 'Are you sure you want to log out from your account session?',
-      confirmText: 'Log out',
-      icon: Icons.logout_rounded,
-      iconColor: AppColor.cockpitOrange,
-      iconBgColor: AppColor.avatarBg,
-      confirmBtnColor: AppColor.cockpitOrange,
-      onConfirm: () {
-        try {
-          context.read<AuthLoginBloc>().add(AuthLogoutEvent());
-        } catch (_) {}
-        AppSnackBarWidget.show(
-          context,
-          message: 'Logged out successfully',
-          type: ToastType.success,
-        );
-        context.goNamed(AppRoute.login.name);
-      },
-    );
+    LogoutConfirmationDialog.show(context: context);
   }
 
   void _onDeleteAccountTap(BuildContext context) {
@@ -43,6 +21,7 @@ class AccountActionsCardWidget extends StatelessWidget {
       message:
           'Are you sure you want to permanently delete your account? All your data will be removed and this action cannot be undone.',
       confirmText: 'Delete account',
+      cancelText: 'Cancel',
       icon: Icons.delete_forever_rounded,
       iconColor: AppColor.brightRed,
       iconBgColor: AppColor.brightRed.withValues(alpha: 0.1),
@@ -115,6 +94,7 @@ class AccountActionsCardWidget extends StatelessWidget {
             iconBgColor: AppColor.avatarBg,
             borderColor: AppColor.metricCardBorder,
             isDestructive: false,
+            isLoading: false,
             onTap: () => _onLogoutTap(context),
           ),
           12.hS,
@@ -147,6 +127,7 @@ class AccountActionsCardWidget extends StatelessWidget {
     required Color iconBgColor,
     required Color borderColor,
     required bool isDestructive,
+    bool isLoading = false,
     required VoidCallback onTap,
   }) {
     return Container(
@@ -163,7 +144,7 @@ class AccountActionsCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         child: InkWell(
           borderRadius: BorderRadius.circular(16.r),
-          onTap: onTap,
+          onTap: isLoading ? null : onTap,
           splashColor: isDestructive
               ? AppColor.brightRed.withValues(alpha: 0.1)
               : AppColor.orangeTint2.withValues(alpha: 0.5),
@@ -224,14 +205,20 @@ class AccountActionsCardWidget extends StatelessWidget {
                   ),
                 ),
 
-                // Trailing Chevron
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14.sp,
-                  color: isDestructive
-                      ? AppColor.brightRed.withValues(alpha: 0.6)
-                      : AppColor.slateGrey,
-                ),
+                // Trailing Widget
+                if (isLoading)
+                  CupertinoActivityIndicator(
+                    color: iconColor,
+                    radius: 9.r,
+                  )
+                else
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 14.sp,
+                    color: isDestructive
+                        ? AppColor.brightRed.withValues(alpha: 0.6)
+                        : AppColor.slateGrey,
+                  ),
               ],
             ),
           ),

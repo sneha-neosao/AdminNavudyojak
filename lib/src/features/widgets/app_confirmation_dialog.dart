@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../core/extensions/integer_sizedbox_extension.dart';
-import '../../../core/theme/app_color.dart';
+import '../../core/extensions/integer_sizedbox_extension.dart';
+import '../../core/theme/app_color.dart';
 
-class AccountConfirmationDialog extends StatelessWidget {
+class AppConfirmationDialog extends StatelessWidget {
   final String title;
   final String message;
   final String confirmText;
@@ -19,7 +19,7 @@ class AccountConfirmationDialog extends StatelessWidget {
   final VoidCallback onConfirm;
   final VoidCallback? onCancel;
 
-  const AccountConfirmationDialog({
+  const AppConfirmationDialog({
     super.key,
     required this.title,
     required this.message,
@@ -57,7 +57,7 @@ class AccountConfirmationDialog extends StatelessWidget {
       barrierDismissible: !isLoading,
       builder: (dialogContext) => PopScope(
         canPop: !isLoading,
-        child: AccountConfirmationDialog(
+        child: AppConfirmationDialog(
           title: title,
           message: message,
           confirmText: confirmText,
@@ -178,15 +178,12 @@ class AccountConfirmationDialog extends StatelessWidget {
                 ),
                 12.wS,
 
-                // Confirm Button (Filled Pill)
+                // Confirm Button (Filled Purple/Accent Pill)
                 Expanded(
                   child: SizedBox(
                     height: 48.h,
                     child: ElevatedButton(
-                      onPressed: isLoading ? null : () {
-                        Navigator.of(context).pop(true);
-                        onConfirm();
-                      },
+                      onPressed: isLoading ? null : onConfirm,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: confirmBtnColor,
                         disabledBackgroundColor:

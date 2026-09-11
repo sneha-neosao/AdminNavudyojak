@@ -7,15 +7,15 @@ import '../../core/errors/exceptions.dart';
 import '../../core/utils/logger.dart';
 import '../../features/login/domain/usecase/login_usecase.dart';
 import '../models/auth_model/Login_response.dart';
-import '../models/common_response.dart';
+import '../models/auth_model/logout_response.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
   Future<LoginResponse> Login(LoginParams params);
   Future<LoginResponse> login(LoginParams params);
 
-  Future<CommonResponse> Logout(String token, String refreshToken);
-  Future<CommonResponse> logout(String token, String refreshToken);
+  Future<LogoutResponse> Logout(String token, String refreshToken);
+  Future<LogoutResponse> logout(String token, String refreshToken);
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -67,25 +67,30 @@ class RemoteDataSourceImpl implements RemoteDataSource {
   }
 
   @override
-  Future<CommonResponse> Logout(String token, String refreshToken) async {
+  Future<LogoutResponse> Logout(String token, String refreshToken) async {
     return logout(token, refreshToken);
   }
 
   @override
-  Future<CommonResponse> logout(String token, String refreshToken) async {
+  Future<LogoutResponse> logout(String token, String refreshToken) async {
     try {
       final response = await _helper.execute(
         method: Method.post,
         url: ApiUrl.logout,
+        data: {
+          "refresh": refreshToken,
+        },
         options: Options(
           headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
-            'refresh-token': refreshToken,
+            'X-CSRFTOKEN': '7aKIiDw0PyKYMvkSD98l85bREOUXMiZKY3SA5bE32jbMslB6cazEsoap2mNFTFAk',
           },
         ),
       );
 
-      final respData = CommonResponse.fromJson(response);
+      final respData = LogoutResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();
