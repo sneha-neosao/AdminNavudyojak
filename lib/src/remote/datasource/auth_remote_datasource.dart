@@ -13,6 +13,7 @@ import '../models/customers_model/customer_details_response.dart';
 import '../models/app_version_model/app_version_response.dart';
 import '../models/profile_model/profile_details_response.dart';
 import '../models/notifications_model/notifications_response.dart';
+import '../models/notifications_model/notifications_count_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
 
@@ -73,6 +74,11 @@ abstract class RemoteDataSource {
   Future<NotificationsResponse> NotificationsList({int? page, int? limit});
   // ignore: non_constant_identifier_names
   Future<NotificationsResponse> notifications_list({int? page, int? limit});
+
+  // ignore: non_constant_identifier_names
+  Future<NotificationsCountResponse> NotificationsCounts();
+  // ignore: non_constant_identifier_names
+  Future<NotificationsCountResponse> notifications_counts();
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -411,6 +417,42 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = ForgotPasswordResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<NotificationsCountResponse> NotificationsCounts() async {
+    return notifications_counts();
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<NotificationsCountResponse> notifications_counts() async {
+    try {
+      final response = await _helper.execute(
+        method: Method.get,
+        url: ApiUrl.notificationsCounts,
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+          },
+        ),
+      );
+
+      final respData = NotificationsCountResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

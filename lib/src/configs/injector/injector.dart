@@ -31,3 +31,6 @@ export '../../remote/models/auth_model/forgot_password_response.dart';
 export '../../features/login/domain/usecase/forgot_password_usecase.dart';
 export '../../features/login/bloc/forgot_password_bloc/forgot_password_bloc.dart';
 export '../../features/login/bloc/forgot_password_form_bloc/forgot_password_form_bloc.dart';
+export '../../remote/models/notifications_model/notifications_count_response.dart';
+export '../../features/notifications/domain/usecase/notifications_count_usecase.dart';
+export '../../features/notifications/bloc/notifications_count_bloc/notifications_count_bloc.dart';

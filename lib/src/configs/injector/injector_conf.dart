@@ -119,4 +119,13 @@ void configureDepedencies() {
   getIt.registerFactory<NotificationsBloc>(
     () => NotificationsBloc(getIt<NotificationsUseCase>()),
   );
+
+  /// Notifications Count BLoC registered per Rule 4
+  getIt.registerLazySingleton<NotificationsCountUseCase>(
+    () => NotificationsCountUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<NotificationsCountBloc>(
+    () => NotificationsCountBloc(getIt<NotificationsCountUseCase>()),
+  );
 }

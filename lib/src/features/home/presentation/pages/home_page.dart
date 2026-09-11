@@ -6,6 +6,7 @@ import '../../../../core/theme/app_color.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../app_version/bloc/app_version_bloc/app_version_bloc.dart';
 import '../../../profile/bloc/profile_details_bloc/profile_details_bloc.dart';
+import '../../../notifications/bloc/notifications_count_bloc/notifications_count_bloc.dart';
 import '../../widget/home_content_widget.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final AppVersionBloc _appVersionBloc;
   late final ProfileDetailsBloc _profileDetailsBloc;
+  late final NotificationsCountBloc _notificationsCountBloc;
 
   @override
   void initState() {
@@ -27,10 +29,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _profileDetailsBloc = getIt<ProfileDetailsBloc>();
     _profileDetailsBloc.add(const GetProfileDetailsEvent());
+
+    _notificationsCountBloc = getIt<NotificationsCountBloc>();
+    _notificationsCountBloc.add(const GetNotificationsCountEvent());
   }
 
   @override
   void dispose() {
+    _notificationsCountBloc.close();
     _profileDetailsBloc.close();
     _appVersionBloc.close();
     super.dispose();
@@ -45,6 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         BlocProvider<ProfileDetailsBloc>.value(
           value: _profileDetailsBloc,
+        ),
+        BlocProvider<NotificationsCountBloc>.value(
+          value: _notificationsCountBloc,
         ),
       ],
       child: BlocListener<AppVersionBloc, AppVersionState>(

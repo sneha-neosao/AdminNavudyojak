@@ -54,6 +54,7 @@ class ApiUrl {
       "/common/app-versions/check/?app_name=$appName";
 
   static const notifications = "/notifications";
+  static const notificationsCounts = "/notifications/counts";
   static String notificationsUrl({int? page, int? limit}) {
     final queryParams = <String>[];
     if (page != null) queryParams.add("page=$page");

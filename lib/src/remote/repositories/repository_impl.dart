@@ -15,6 +15,7 @@ import '../models/customers_model/customer_details_response.dart';
 import '../models/app_version_model/app_version_response.dart';
 import '../models/profile_model/profile_details_response.dart';
 import '../models/notifications_model/notifications_response.dart';
+import '../models/notifications_model/notifications_count_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
 import '../../features/customers/domain/usecase/customers_usecase.dart';
 import '../../features/app_version/domain/usecase/app_version_usecase.dart';
@@ -46,6 +47,8 @@ abstract class Repository {
   /// Notifications
   // ignore: non_constant_identifier_names
   Future<Either<Failure, NotificationsResponse>> notifications_list(NotificationsParams params);
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, NotificationsCountResponse>> notifications_counts(NoParams params);
 }
 
 class AuthRepositoryImpl implements Repository {
@@ -347,6 +350,43 @@ class AuthRepositoryImpl implements Repository {
               respData.message?.isNotEmpty == true
                   ? respData.message!
                   : "Failed to send reset link",
+            ));
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, NotificationsCountResponse>> notifications_counts(
+      NoParams params) async {
+    return _networkInfo.check(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.notifications_counts();
+
+          if (respData.success == false) {
+            return Left(ServerFailure(
+              respData.message?.isNotEmpty == true
+                  ? respData.message!
+                  : "Failed to fetch notification counts",
             ));
           }
 
