@@ -13,6 +13,8 @@ class ApiUrl {
 
   static const customers = "/admin-app/customers";
 
+  static String customerDetails(String id) => "/admin-app/customers/$id";
+
   static const firebaseTokenUpdate = "/profile/update-firebase-token";
 
   static const orderList = "/orders/list";

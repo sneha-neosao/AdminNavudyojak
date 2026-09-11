@@ -1,4 +1,5 @@
 class CustomerDetailItem {
+  final String? id;
   final String initials;
   final String name;
   final String phone;
@@ -7,6 +8,7 @@ class CustomerDetailItem {
   final String code;
 
   const CustomerDetailItem({
+    this.id,
     required this.initials,
     required this.name,
     required this.phone,

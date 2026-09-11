@@ -80,9 +80,19 @@ class AppRouteConf {
         path: AppRoute.customerOnboardingDetails.path,
         name: AppRoute.customerOnboardingDetails.name,
         pageBuilder: (context, state) {
-          final customer = state.extra as CustomerDetailItem?;
+          CustomerDetailItem? customer;
+          String? customerId;
+          if (state.extra is CustomerDetailItem) {
+            customer = state.extra as CustomerDetailItem;
+            customerId = customer.id;
+          } else if (state.extra is String) {
+            customerId = state.extra as String;
+          }
           return _fadePage(
-            CustomerOnboardingDetailsScreen(customer: customer),
+            CustomerOnboardingDetailsScreen(
+              customer: customer,
+              customerId: customerId,
+            ),
           );
         },
       ),

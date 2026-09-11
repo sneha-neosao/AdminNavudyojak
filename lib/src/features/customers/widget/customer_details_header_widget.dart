@@ -13,47 +13,50 @@ class CustomerDetailsHeaderWidget extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Back button
-          InkWell(
-            borderRadius: BorderRadius.circular(10.r),
-            onTap: () {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go('/customers');
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.all(4.r),
-              child: Icon(
-                Icons.arrow_back,
-                size: 24.sp,
-                color: AppColor.black,
+          // Subtitle aligned horizontally with "Customers" text
+          Padding(
+            padding: EdgeInsets.only(left: 40.w),
+            child: Text(
+              'CUSTOMER INTELLIGENCE',
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontSize: 11.5.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColor.cockpitOrange,
+                letterSpacing: 1.2,
               ),
+              softWrap: true,
             ),
           ),
-          12.wS,
+          2.hS,
 
-          // Header Text
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'CUSTOMER INTELLIGENCE',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    fontSize: 11.5.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.cockpitOrange,
-                    letterSpacing: 1.2,
+          // Row with Back Arrow vertically centered with "Customers" text
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(10.r),
+                onTap: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/customers');
+                  }
+                },
+                child: Padding(
+                  padding: EdgeInsets.all(4.r),
+                  child: Icon(
+                    Icons.arrow_back,
+                    size: 24.sp,
+                    color: AppColor.black,
                   ),
-                  softWrap: true,
                 ),
-                2.hS,
-                Text(
+              ),
+              8.wS,
+              Expanded(
+                child: Text(
                   'Customers',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontSize: 24.sp,
@@ -63,8 +66,8 @@ class CustomerDetailsHeaderWidget extends StatelessWidget {
                   ),
                   softWrap: true,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

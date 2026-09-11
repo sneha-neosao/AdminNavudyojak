@@ -9,12 +9,15 @@ import '../../features/login/domain/usecase/login_usecase.dart';
 import '../models/auth_model/Login_response.dart';
 import '../models/auth_model/logout_response.dart';
 import '../models/customers_model/customers_response.dart';
+import '../models/customers_model/customer_details_response.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
+  // ignore: non_constant_identifier_names
   Future<LoginResponse> Login(LoginParams params);
   Future<LoginResponse> login(LoginParams params);
 
+  // ignore: non_constant_identifier_names
   Future<LogoutResponse> Logout(String token, String refreshToken);
   Future<LogoutResponse> logout(String token, String refreshToken);
 
@@ -37,6 +40,11 @@ abstract class RemoteDataSource {
     String? state,
     String? isActive,
   });
+
+  // ignore: non_constant_identifier_names
+  Future<CustomerDetailsResponse> CustomerDetails(String id);
+  // ignore: non_constant_identifier_names
+  Future<CustomerDetailsResponse> customer_details(String id);
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -45,6 +53,7 @@ class RemoteDataSourceImpl implements RemoteDataSource {
   RemoteDataSourceImpl(this._helper);
 
   @override
+  // ignore: non_constant_identifier_names
   Future<LoginResponse> Login(LoginParams params) async {
     return login(params);
   }
@@ -88,6 +97,7 @@ class RemoteDataSourceImpl implements RemoteDataSource {
   }
 
   @override
+  // ignore: non_constant_identifier_names
   Future<LogoutResponse> Logout(String token, String refreshToken) async {
     return logout(token, refreshToken);
   }
@@ -191,6 +201,42 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = CustomersResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<CustomerDetailsResponse> CustomerDetails(String id) async {
+    return customer_details(id);
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<CustomerDetailsResponse> customer_details(String id) async {
+    try {
+      final response = await _helper.execute(
+        method: Method.get,
+        url: ApiUrl.customerDetails(id),
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+          },
+        ),
+      );
+
+      final respData = CustomerDetailsResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

@@ -167,6 +167,7 @@ class CustomerItem extends Equatable {
   /// Converts this API model into CustomerDetailItem for backward compatibility with UI widgets
   CustomerDetailItem toCustomerDetailItem() {
     return CustomerDetailItem(
+      id: id,
       initials: initials.isNotEmpty
           ? initials
           : (fullName.isNotEmpty ? fullName[0].toUpperCase() : 'C'),
