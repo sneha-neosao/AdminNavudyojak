@@ -137,8 +137,4 @@ void configureDepedencies() {
   getIt.registerFactory<MarkAllNotificationsReadBloc>(
     () => MarkAllNotificationsReadBloc(getIt<MarkAllNotificationsReadUseCase>()),
   );
-
-  getIt.registerFactory<MarkAllNotificationsReadFormBloc>(
-    () => MarkAllNotificationsReadFormBloc(),
-  );
 }
