@@ -1,6 +1,9 @@
-import 'package:admin_navudyojak/src/features/analytics/widgets/analytics_content_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/theme/app_color.dart';
+import '../../bloc/business_performance_bloc/business_performance_bloc.dart';
+import '../../widgets/analytics_content_widget.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -12,12 +15,20 @@ class AnalyticsScreen extends StatefulWidget {
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: AppColor.pureWhite,
-      body: SafeArea(
-        bottom: false,
-        child: AnalyticsContentWidget(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<BusinessPerformanceBloc>(
+          create: (_) => getIt<BusinessPerformanceBloc>()
+            ..add(const GetBusinessPerformanceEvent()),
+        ),
+      ],
+      child: const Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: AppColor.pureWhite,
+        body: SafeArea(
+          bottom: false,
+          child: AnalyticsContentWidget(),
+        ),
       ),
     );
   }

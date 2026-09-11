@@ -64,6 +64,9 @@ class ApiUrl {
     return "$notifications?${queryParams.join('&')}";
   }
 
+  static const businessPerformance =
+      "/admin-app/analytics/business-performance";
+
   static const deleteAccount = "/auth/delete";
 }
 

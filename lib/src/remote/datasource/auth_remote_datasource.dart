@@ -15,6 +15,7 @@ import '../models/profile_model/profile_details_response.dart';
 import '../models/notifications_model/notifications_response.dart';
 import '../models/notifications_model/notifications_count_response.dart';
 import '../models/notifications_model/mark_all_read_response.dart';
+import '../models/analytics_model/business_performance_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
 
@@ -85,6 +86,12 @@ abstract class RemoteDataSource {
   Future<MarkAllNotificationsReadResponse> MarkAllNotificationsAsRead();
   // ignore: non_constant_identifier_names
   Future<MarkAllNotificationsReadResponse> mark_all_notifications_as_read();
+
+  /// Analytics
+  // ignore: non_constant_identifier_names
+  Future<BusinessPerformanceResponse> BusinessPerformance();
+  // ignore: non_constant_identifier_names
+  Future<BusinessPerformanceResponse> business_performance();
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -495,6 +502,42 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = MarkAllNotificationsReadResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<BusinessPerformanceResponse> BusinessPerformance() async {
+    return business_performance();
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<BusinessPerformanceResponse> business_performance() async {
+    try {
+      final response = await _helper.execute(
+        method: Method.get,
+        url: ApiUrl.businessPerformance,
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+          },
+        ),
+      );
+
+      final respData = BusinessPerformanceResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

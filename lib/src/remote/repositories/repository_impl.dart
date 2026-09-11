@@ -17,6 +17,7 @@ import '../models/profile_model/profile_details_response.dart';
 import '../models/notifications_model/notifications_response.dart';
 import '../models/notifications_model/notifications_count_response.dart';
 import '../models/notifications_model/mark_all_read_response.dart';
+import '../models/analytics_model/business_performance_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
 import '../../features/customers/domain/usecase/customers_usecase.dart';
 import '../../features/app_version/domain/usecase/app_version_usecase.dart';
@@ -52,6 +53,10 @@ abstract class Repository {
   Future<Either<Failure, NotificationsCountResponse>> notifications_counts(NoParams params);
   // ignore: non_constant_identifier_names
   Future<Either<Failure, MarkAllNotificationsReadResponse>> mark_all_notifications_as_read(NoParams params);
+
+  /// Analytics
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, BusinessPerformanceResponse>> business_performance(NoParams params);
 }
 
 class AuthRepositoryImpl implements Repository {
@@ -428,6 +433,44 @@ class AuthRepositoryImpl implements Repository {
               respData.message?.isNotEmpty == true
                   ? respData.message!
                   : "Failed to mark notifications as read",
+            ));
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(
+              InternetFailure(mapFailureToMessage(InternetFailure(""))));
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, BusinessPerformanceResponse>> business_performance(
+      NoParams params) async {
+    return _networkInfo.check(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.business_performance();
+
+          if (respData.success == false) {
+            return Left(ServerFailure(
+              respData.message?.isNotEmpty == true
+                  ? respData.message!
+                  : "Failed to fetch business performance analytics",
             ));
           }
 

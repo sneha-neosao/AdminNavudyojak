@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "222763689892",
+    "project_id": "maharashtra-navudyojak-kendra",
+    "storage_bucket": "maharashtra-navudyojak-kendra.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222763689892:android:e6ac40546807f587338331",
+        "android_client_info": {
+          "package_name": "com.maharashtra_navudyjok"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYt1t2pQV23TIcXcKGv1bCLOE8D5QYCLA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222763689892:android:4899e0a735119d22338331",
+        "android_client_info": {
+          "package_name": "com.maharashtra_navudyjok_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYt1t2pQV23TIcXcKGv1bCLOE8D5QYCLA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222763689892:android:f6a3464f0879b1d4338331",
+        "android_client_info": {
+          "package_name": "com.serviceapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYt1t2pQV23TIcXcKGv1bCLOE8D5QYCLA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

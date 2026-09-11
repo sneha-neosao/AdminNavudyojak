@@ -37,3 +37,6 @@ export '../../features/notifications/bloc/notifications_count_bloc/notifications
 export '../../remote/models/notifications_model/mark_all_read_response.dart';
 export '../../features/notifications/domain/usecase/mark_all_notifications_read_usecase.dart';
 export '../../features/notifications/bloc/mark_all_notifications_read_bloc/mark_all_notifications_read_bloc.dart';
+export '../../remote/models/analytics_model/business_performance_response.dart';
+export '../../features/analytics/domain/usecase/business_performance_usecase.dart';
+export '../../features/analytics/bloc/business_performance_bloc/business_performance_bloc.dart';

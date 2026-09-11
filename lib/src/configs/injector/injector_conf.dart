@@ -137,4 +137,13 @@ void configureDepedencies() {
   getIt.registerFactory<MarkAllNotificationsReadBloc>(
     () => MarkAllNotificationsReadBloc(getIt<MarkAllNotificationsReadUseCase>()),
   );
+
+  /// Business Performance Analytics registered per Rule 4
+  getIt.registerLazySingleton<BusinessPerformanceUseCase>(
+    () => BusinessPerformanceUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<BusinessPerformanceBloc>(
+    () => BusinessPerformanceBloc(getIt<BusinessPerformanceUseCase>()),
+  );
 }
