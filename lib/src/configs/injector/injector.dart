@@ -21,6 +21,7 @@ export '../../features/customers/bloc/customer_details_bloc/customer_details_blo
 export '../../remote/models/app_version_model/app_version_response.dart';
 export '../../features/app_version/domain/usecase/app_version_usecase.dart';
 export '../../features/app_version/bloc/app_version_bloc/app_version_bloc.dart';
+export '../../features/app_version/widgets/maintenance_mode_dialog.dart';
 export '../../remote/models/profile_model/profile_details_response.dart';
 export '../../features/profile/domain/usecase/profile_details_usecase.dart';
 export '../../features/profile/bloc/profile_details_bloc/profile_details_bloc.dart';

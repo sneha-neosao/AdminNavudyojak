@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/utils/logger.dart';
 import '../../../../core/theme/app_color.dart';
-import '../../../../routes/app_route_path.dart';
 import '../../../app_version/bloc/app_version_bloc/app_version_bloc.dart';
+import '../../../app_version/widgets/maintenance_mode_dialog.dart';
 import '../../../profile/bloc/update_fcm_token_bloc/update_fcm_token_bloc.dart';
 import '../../../notifications/bloc/notifications_count_bloc/notifications_count_bloc.dart';
 import '../../bloc/admin_dashboard_bloc/admin_dashboard_bloc.dart';
@@ -21,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _isMaintenanceDialogOpen = false;
   late final AppVersionBloc _appVersionBloc;
   late final NotificationsCountBloc _notificationsCountBloc;
   late final UpdateFcmTokenBloc _updateFcmTokenBloc;
@@ -79,8 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
           if (state is AppVersionSuccessState) {
             final data = state.data.data;
             if (data != null && data.isMaintenanceMode) {
-              if (mounted) {
-                context.go(AppRoute.maintenance.path);
+              if (mounted && !_isMaintenanceDialogOpen) {
+                _isMaintenanceDialogOpen = true;
+                MaintenanceModeDialog.show(
+                  context: context,
+                  message: data.maintenanceMessage,
+                );
               }
             }
           }
