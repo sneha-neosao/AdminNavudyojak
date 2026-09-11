@@ -18,3 +18,6 @@ export '../../features/customers/domain/usecase/customers_usecase.dart';
 export '../../features/customers/domain/usecase/customer_details_usecase.dart';
 export '../../features/customers/bloc/customers_bloc/customers_bloc.dart';
 export '../../features/customers/bloc/customer_details_bloc/customer_details_bloc.dart';
+export '../../remote/models/app_version_model/app_version_response.dart';
+export '../../features/app_version/domain/usecase/app_version_usecase.dart';
+export '../../features/app_version/bloc/app_version_bloc/app_version_bloc.dart';

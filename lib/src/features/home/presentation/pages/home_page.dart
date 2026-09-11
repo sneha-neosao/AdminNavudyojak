@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/theme/app_color.dart';
+import '../../../../routes/app_route_path.dart';
+import '../../../app_version/bloc/app_version_bloc/app_version_bloc.dart';
 import '../../widget/home_content_widget.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,13 +15,41 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late final AppVersionBloc _appVersionBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _appVersionBloc = getIt<AppVersionBloc>();
+    _appVersionBloc.add(const CheckAppVersionEvent(appName: 'admin_app'));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: AppColor.pureWhite,
-      body: SafeArea(
-        child: HomeContentWidget(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AppVersionBloc>.value(
+          value: _appVersionBloc,
+        ),
+      ],
+      child: BlocListener<AppVersionBloc, AppVersionState>(
+        listener: (context, state) {
+          if (state is AppVersionSuccessState) {
+            final data = state.data.data;
+            if (data != null && data.isMaintenanceMode) {
+              if (mounted) {
+                context.go(AppRoute.maintenance.path);
+              }
+            }
+          }
+        },
+        child: const Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: AppColor.pureWhite,
+          body: SafeArea(
+            child: HomeContentWidget(),
+          ),
+        ),
       ),
     );
   }

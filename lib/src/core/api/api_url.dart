@@ -47,6 +47,10 @@ class ApiUrl {
 
   static const appUpdate = "/app-version";
 
+  static const String appVersionCheck = "/common/app-versions/check/";
+  static String appVersionCheckUrl({String appName = 'admin_app'}) =>
+      "/common/app-versions/check/?app_name=$appName";
+
   static const deleteAccount = "/auth/delete";
 }
 
