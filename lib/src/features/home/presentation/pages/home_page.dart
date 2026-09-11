@@ -42,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchAndPrintFcmToken() async {
+    await NotificationService.requestNotificationPermission();
     final token = await NotificationService.getToken();
     debugPrint('================ FCM TOKEN ================');
     debugPrint('$token');

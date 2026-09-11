@@ -53,6 +53,26 @@ class NoficationService {
   FlutterLocalNotificationsPlugin();
 
   // ============================================================
+  // UNIFIED INITIALIZE METHOD
+  // ============================================================
+
+  static Future<void> initialize() async {
+    try {
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      }
+      await initLocalNotifications();
+      await requestNotificationPermission();
+      initNotificationListener();
+      print('✅ NotificationService initialized successfully');
+    } catch (e) {
+      print('❌ NotificationService initialization error: $e');
+    }
+  }
+
+  // ============================================================
   // REQUEST PERMISSION
   // ============================================================
 
@@ -80,6 +100,16 @@ class NoficationService {
       provisional: false,
       sound: true,
     );
+
+    try {
+      final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
+          _flutterLocalNotificationsPlugin
+              .resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin>();
+      await androidPlugin?.requestNotificationsPermission();
+    } catch (e) {
+      print('⚠️ Error requesting Android notifications permission: $e');
+    }
 
     if (settings.authorizationStatus ==
         AuthorizationStatus.authorized) {
@@ -172,7 +202,17 @@ class NoficationService {
       generalChannelId,
       generalChannelName,
       description: 'General application notifications',
-      importance: Importance.high,
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+    );
+
+    const AndroidNotificationChannel highImportanceChannel =
+    AndroidNotificationChannel(
+      'high_importance_channel',
+      'High Importance Notifications',
+      description: 'This channel is used for important notifications.',
+      importance: Importance.max,
       playSound: true,
       enableVibration: true,
     );
@@ -188,11 +228,15 @@ class NoficationService {
         AndroidFlutterLocalNotificationsPlugin>();
 
     // ==========================================================
-    // CREATE GENERAL CHANNEL
+    // CREATE CHANNELS
     // ==========================================================
 
     await androidPlugin?.createNotificationChannel(
       generalChannel,
+    );
+
+    await androidPlugin?.createNotificationChannel(
+      highImportanceChannel,
     );
 
     // ==========================================================
@@ -217,6 +261,7 @@ class NoficationService {
     print('========================================');
     print('Notification channels initialized');
     print('🔕 General Channel ID: $generalChannelId');
+    print('🔔 High Importance Channel ID: high_importance_channel');
     print('📥 Download Channel ID: $downloadChannelId');
     print('========================================');
   }
@@ -313,10 +358,11 @@ class NoficationService {
       channelId,
       channelName,
       channelDescription: 'General application notifications',
+      icon: '@mipmap/ic_launcher',
 
-      // Normal notification importance & priority
-      importance: Importance.high,
-      priority: Priority.high,
+      // Maximum notification importance & priority for heads-up alert
+      importance: Importance.max,
+      priority: Priority.max,
 
       // Default notification sound
       playSound: true,
@@ -327,8 +373,8 @@ class NoficationService {
 
       color: const Color(0xFFFA6624),
 
-      // Normal notification category
-      category: AndroidNotificationCategory.status,
+      // Message notification category
+      category: AndroidNotificationCategory.message,
 
       // Normal notification audio attributes
       audioAttributesUsage:
@@ -401,8 +447,9 @@ class NoficationService {
         generalChannelId,
         generalChannelName,
         channelDescription: 'General Notifications',
-        importance: Importance.high,
-        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+        importance: Importance.max,
+        priority: Priority.max,
         playSound: true,
         enableVibration: true,
         enableLights: true,

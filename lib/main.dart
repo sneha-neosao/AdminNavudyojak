@@ -4,34 +4,22 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:admin_navudyojak/firebase_options.dart';
 import 'package:admin_navudyojak/src/app.dart';
 import 'package:admin_navudyojak/src/configs/injector/injector_conf.dart';
 import 'package:admin_navudyojak/src/core/constants/list_translation_locale.dart';
+import 'package:admin_navudyojak/src/core/services/notification_service.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
-
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    description:
-    'This channel is used for important notifications.', // description
-    importance: Importance.high,
-    playSound: true);
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print('A bg message just showed up :  ${message.messageId}');
-}
-
-@pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  debugPrint('A bg message just showed up : ${message.messageId}');
+  if (message.notification == null) {
+    await NotificationService.initLocalNotifications();
+    await NotificationService.showLocalNotification(message);
+  }
 }
 
 Future<void> main() async {
@@ -41,8 +29,10 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    await NotificationService.initialize();
   } catch (e) {
-    debugPrint('Firebase initializeApp error: $e');
+    debugPrint('Firebase / NotificationService init error: $e');
   }
 
   try {
