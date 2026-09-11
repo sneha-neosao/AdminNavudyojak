@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../widgets/app_snackbar_widget.dart';
@@ -8,7 +9,21 @@ import 'account_confirmation_dialog.dart';
 import 'logout_confirmation_dialog.dart';
 
 class AccountActionsCardWidget extends StatelessWidget {
-  const AccountActionsCardWidget({super.key});
+  final VoidCallback? onChangePasswordTap;
+
+  const AccountActionsCardWidget({super.key, this.onChangePasswordTap});
+
+  void _onChangePasswordTap(BuildContext context) {
+    if (onChangePasswordTap != null) {
+      onChangePasswordTap!();
+      return;
+    }
+    AppSnackBarWidget.show(
+      context,
+      message: 'Change password selected',
+      type: ToastType.info,
+    );
+  }
 
   void _onLogoutTap(BuildContext context) {
     LogoutConfirmationDialog.show(context: context);
@@ -18,8 +33,7 @@ class AccountActionsCardWidget extends StatelessWidget {
     AccountConfirmationDialog.show(
       context: context,
       title: 'Delete account',
-      message:
-          'Are you sure you want to permanently delete your account? All your data will be removed and this action cannot be undone.',
+      message: 'Are you sure you want to permanently delete your account? All your data will be removed and this action cannot be undone.',
       confirmText: 'Delete account',
       cancelText: 'Cancel',
       icon: Icons.delete_forever_rounded,
@@ -46,10 +60,7 @@ class AccountActionsCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.pureWhite,
         borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(
-          color: AppColor.metricCardBorder,
-          width: 1.2,
-        ),
+        border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: AppColor.black.withValues(alpha: 0.03),
@@ -83,7 +94,23 @@ class AccountActionsCardWidget extends StatelessWidget {
           ),
           16.hS,
 
-          // 1. Logout Tile
+          // 1. Change Password Tile
+          _buildActionTile(
+            context: context,
+            theme: theme,
+            title: 'Change password',
+            subtitle: 'Update your account login password',
+            icon: Icons.lock_outline_rounded,
+            iconColor: AppColor.cockpitOrange,
+            iconBgColor: AppColor.avatarBg,
+            borderColor: AppColor.metricCardBorder,
+            isDestructive: false,
+            isLoading: false,
+            onTap: () => _onChangePasswordTap(context),
+          ),
+          12.hS,
+
+          // 2. Logout Tile
           _buildActionTile(
             context: context,
             theme: theme,
@@ -99,7 +126,7 @@ class AccountActionsCardWidget extends StatelessWidget {
           ),
           12.hS,
 
-          // 2. Delete Account Tile
+          // 3. Delete Account Tile
           _buildActionTile(
             context: context,
             theme: theme,
@@ -134,10 +161,7 @@ class AccountActionsCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.pureWhite,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: borderColor,
-          width: 1.1,
-        ),
+        border: Border.all(color: borderColor, width: 1.1),
       ),
       child: Material(
         color: AppColor.transparent,
@@ -164,11 +188,7 @@ class AccountActionsCardWidget extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Icon(
-                      icon,
-                      size: 20.sp,
-                      color: iconColor,
-                    ),
+                    child: Icon(icon, size: 20.sp, color: iconColor),
                   ),
                 ),
                 14.wS,
@@ -207,10 +227,7 @@ class AccountActionsCardWidget extends StatelessWidget {
 
                 // Trailing Widget
                 if (isLoading)
-                  CupertinoActivityIndicator(
-                    color: iconColor,
-                    radius: 9.r,
-                  )
+                  CupertinoActivityIndicator(color: iconColor, radius: 9.r)
                 else
                   Icon(
                     Icons.arrow_forward_ios_rounded,
