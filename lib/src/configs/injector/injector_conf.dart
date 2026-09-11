@@ -128,4 +128,17 @@ void configureDepedencies() {
   getIt.registerFactory<NotificationsCountBloc>(
     () => NotificationsCountBloc(getIt<NotificationsCountUseCase>()),
   );
+
+  /// Mark All Notifications Read UseCase and BLoCs registered per Rule 4
+  getIt.registerLazySingleton<MarkAllNotificationsReadUseCase>(
+    () => MarkAllNotificationsReadUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<MarkAllNotificationsReadBloc>(
+    () => MarkAllNotificationsReadBloc(getIt<MarkAllNotificationsReadUseCase>()),
+  );
+
+  getIt.registerFactory<MarkAllNotificationsReadFormBloc>(
+    () => MarkAllNotificationsReadFormBloc(),
+  );
 }

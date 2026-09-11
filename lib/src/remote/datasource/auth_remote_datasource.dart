@@ -14,6 +14,7 @@ import '../models/app_version_model/app_version_response.dart';
 import '../models/profile_model/profile_details_response.dart';
 import '../models/notifications_model/notifications_response.dart';
 import '../models/notifications_model/notifications_count_response.dart';
+import '../models/notifications_model/mark_all_read_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
 
@@ -79,6 +80,11 @@ abstract class RemoteDataSource {
   Future<NotificationsCountResponse> NotificationsCounts();
   // ignore: non_constant_identifier_names
   Future<NotificationsCountResponse> notifications_counts();
+
+  // ignore: non_constant_identifier_names
+  Future<MarkAllNotificationsReadResponse> MarkAllNotificationsAsRead();
+  // ignore: non_constant_identifier_names
+  Future<MarkAllNotificationsReadResponse> mark_all_notifications_as_read();
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -453,6 +459,42 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = NotificationsCountResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<MarkAllNotificationsReadResponse> MarkAllNotificationsAsRead() async {
+    return mark_all_notifications_as_read();
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<MarkAllNotificationsReadResponse> mark_all_notifications_as_read() async {
+    try {
+      final response = await _helper.execute(
+        method: Method.post,
+        url: ApiUrl.markAllNotificationsAsRead,
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+          },
+        ),
+      );
+
+      final respData = MarkAllNotificationsReadResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

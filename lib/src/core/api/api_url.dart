@@ -55,6 +55,7 @@ class ApiUrl {
 
   static const notifications = "/notifications";
   static const notificationsCounts = "/notifications/counts";
+  static const markAllNotificationsAsRead = "/notifications/mark-all-as-read";
   static String notificationsUrl({int? page, int? limit}) {
     final queryParams = <String>[];
     if (page != null) queryParams.add("page=$page");

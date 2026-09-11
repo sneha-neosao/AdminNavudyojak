@@ -8,6 +8,7 @@ class NotificationsFilterChipsWidget extends StatelessWidget {
   final ValueChanged<String> onFilterChanged;
   final VoidCallback? onMarkAllRead;
   final int unreadCount;
+  final bool isLoading;
 
   const NotificationsFilterChipsWidget({
     super.key,
@@ -15,6 +16,7 @@ class NotificationsFilterChipsWidget extends StatelessWidget {
     required this.onFilterChanged,
     this.onMarkAllRead,
     this.unreadCount = 0,
+    this.isLoading = false,
   });
 
   static const List<String> filters = [
@@ -95,7 +97,7 @@ class NotificationsFilterChipsWidget extends StatelessWidget {
 
           // Mark all read button on the same line at the rightmost
           TextButton(
-            onPressed: onMarkAllRead,
+            onPressed: isLoading ? null : onMarkAllRead,
             style: TextButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
               minimumSize: Size.zero,
@@ -106,20 +108,34 @@ class NotificationsFilterChipsWidget extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.done_all_rounded,
-                  size: 16.sp,
-                  color: onMarkAllRead != null
-                      ? AppColor.primary
-                      : AppColor.gray,
-                ),
-                4.wS,
+                if (isLoading)
+                  Padding(
+                    padding: EdgeInsets.only(right: 6.w),
+                    child: SizedBox(
+                      width: 12.r,
+                      height: 12.r,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColor.primary,
+                      ),
+                    ),
+                  )
+                else ...[
+                  Icon(
+                    Icons.done_all_rounded,
+                    size: 16.sp,
+                    color: onMarkAllRead != null
+                        ? AppColor.primary
+                        : AppColor.gray,
+                  ),
+                  4.wS,
+                ],
                 Text(
                   'Mark all read',
                   style: theme.textTheme.labelMedium?.copyWith(
                     fontSize: 12.5.sp,
                     fontWeight: FontWeight.w700,
-                    color: onMarkAllRead != null
+                    color: (onMarkAllRead != null && !isLoading)
                         ? AppColor.primary
                         : AppColor.gray,
                   ),

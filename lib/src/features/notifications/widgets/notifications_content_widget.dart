@@ -5,6 +5,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../widgets/app_snackbar_widget.dart';
+import '../bloc/mark_all_notifications_read_bloc/mark_all_notifications_read_bloc.dart';
 import '../bloc/notifications_bloc/notifications_bloc.dart';
 import 'notification_item.dart';
 import 'notification_list_card_widget.dart';
@@ -55,15 +56,10 @@ class _NotificationsContentWidgetState
     return items;
   }
 
-  void _markAllAsRead(List<NotificationItem> allItems) {
-    setState(() {
-      _locallyReadIds.addAll(allItems.map((n) => n.id));
-    });
-    AppSnackBarWidget.show(
-      context,
-      message: 'All notifications marked as read',
-      type: ToastType.success,
-    );
+  void _markAllAsRead() {
+    context
+        .read<MarkAllNotificationsReadBloc>()
+        .add(ExecuteMarkAllNotificationsReadEvent());
   }
 
   void _onNotificationTap(NotificationItem item) {
@@ -131,17 +127,50 @@ class _NotificationsContentWidgetState
               unreadCount: isLoading ? 0 : unreadCount,
             ),
             12.hS,
-            NotificationsFilterChipsWidget(
-              selectedFilter: _selectedFilter,
-              onFilterChanged: (filter) {
-                setState(() {
-                  _selectedFilter = filter;
-                });
+            BlocConsumer<MarkAllNotificationsReadBloc,
+                MarkAllNotificationsReadState>(
+              listener: (context, markState) {
+                if (markState is MarkAllNotificationsReadSuccessState) {
+                  AppSnackBarWidget.show(
+                    context,
+                    message: markState.data.message?.isNotEmpty == true
+                        ? markState.data.message!
+                        : 'All notifications marked as read successfully.',
+                    type: ToastType.success,
+                  );
+                  context
+                      .read<NotificationsBloc>()
+                      .add(RefreshNotificationsEvent());
+                  setState(() {
+                    _locallyReadIds.clear();
+                  });
+                } else if (markState is MarkAllNotificationsReadFailureState) {
+                  AppSnackBarWidget.show(
+                    context,
+                    message: markState.message,
+                    type: ToastType.error,
+                  );
+                }
               },
-              unreadCount: unreadCount,
-              onMarkAllRead: allItems.isEmpty || unreadCount == 0
-                  ? null
-                  : () => _markAllAsRead(allItems),
+              builder: (context, markState) {
+                final isMarkingRead =
+                    markState is MarkAllNotificationsReadLoadingState;
+
+                return NotificationsFilterChipsWidget(
+                  selectedFilter: _selectedFilter,
+                  onFilterChanged: (filter) {
+                    setState(() {
+                      _selectedFilter = filter;
+                    });
+                  },
+                  unreadCount: unreadCount,
+                  isLoading: isMarkingRead,
+                  onMarkAllRead:
+                      allItems.isEmpty || unreadCount == 0 || isMarkingRead
+                          ? null
+                          : _markAllAsRead,
+                );
+              },
             ),
             12.hS,
             Expanded(
