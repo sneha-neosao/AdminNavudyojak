@@ -6,12 +6,10 @@ import '../../../core/theme/app_color.dart';
 
 class NotificationsHeaderWidget extends StatelessWidget {
   final int unreadCount;
-  final VoidCallback? onMarkAllRead;
 
   const NotificationsHeaderWidget({
     super.key,
-    this.unreadCount = 3,
-    this.onMarkAllRead,
+    this.unreadCount = 0,
   });
 
   @override
@@ -20,47 +18,50 @@ class NotificationsHeaderWidget extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Back button
-          InkWell(
-            borderRadius: BorderRadius.circular(10.r),
-            onTap: () {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go('/home');
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.all(4.r),
-              child: Icon(
-                Icons.arrow_back,
-                size: 24.sp,
-                color: AppColor.black,
+          // Subtitle aligned with title text
+          Padding(
+            padding: EdgeInsets.only(left: 40.w),
+            child: Text(
+              'ADMIN ALERTS',
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontSize: 11.5.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColor.cockpitOrange,
+                letterSpacing: 1.2,
               ),
+              softWrap: true,
             ),
           ),
-          12.wS,
+          2.hS,
 
-          // Header Text
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'ADMIN ALERTS',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    fontSize: 11.5.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.cockpitOrange,
-                    letterSpacing: 1.2,
+          // Row with Back Arrow vertically aligned with "Notifications" text
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(10.r),
+                onTap: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/home');
+                  }
+                },
+                child: Padding(
+                  padding: EdgeInsets.all(4.r),
+                  child: Icon(
+                    Icons.arrow_back,
+                    size: 24.sp,
+                    color: AppColor.black,
                   ),
-                  softWrap: true,
                 ),
-                2.hS,
-                Text(
+              ),
+              8.wS,
+              Expanded(
+                child: Text(
                   'Notifications',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontSize: 24.sp,
@@ -70,50 +71,9 @@ class NotificationsHeaderWidget extends StatelessWidget {
                   ),
                   softWrap: true,
                 ),
-              ],
-            ),
-          ),
-
-          // Unread Pill Badge
-          if (unreadCount > 0)
-            InkWell(
-              borderRadius: BorderRadius.circular(16.r),
-              onTap: onMarkAllRead,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: AppColor.avatarBg,
-                  borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color: AppColor.cockpitOrange.withValues(alpha: 0.25),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6.r,
-                      height: 6.r,
-                      decoration: const BoxDecoration(
-                        color: AppColor.cockpitOrange,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    6.wS,
-                    Text(
-                      '$unreadCount New',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColor.cockpitOrange,
-                      ),
-                      softWrap: true,
-                    ),
-                  ],
-                ),
               ),
-            ),
+            ],
+          ),
         ],
       ),
     );

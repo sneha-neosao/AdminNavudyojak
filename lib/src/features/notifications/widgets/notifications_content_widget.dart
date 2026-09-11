@@ -49,25 +49,10 @@ class _NotificationsContentWidgetState
   }
 
   List<NotificationItem> _getFilteredList(List<NotificationItem> items) {
-    switch (_selectedFilter) {
-      case 'Unread':
-        return items.where((n) => !n.isRead).toList();
-      case 'Orders':
-        return items
-            .where((n) => n.type == NotificationType.order)
-            .toList();
-      case 'Requests':
-        return items
-            .where((n) => n.type == NotificationType.alert)
-            .toList();
-      case 'System':
-        return items
-            .where((n) => n.type == NotificationType.system)
-            .toList();
-      case 'All':
-      default:
-        return items;
+    if (_selectedFilter == 'Unread') {
+      return items.where((n) => !n.isRead).toList();
     }
+    return items;
   }
 
   void _markAllAsRead(List<NotificationItem> allItems) {
@@ -144,9 +129,6 @@ class _NotificationsContentWidgetState
             8.hS,
             NotificationsHeaderWidget(
               unreadCount: isLoading ? 0 : unreadCount,
-              onMarkAllRead: allItems.isEmpty
-                  ? null
-                  : () => _markAllAsRead(allItems),
             ),
             12.hS,
             NotificationsFilterChipsWidget(
@@ -156,6 +138,10 @@ class _NotificationsContentWidgetState
                   _selectedFilter = filter;
                 });
               },
+              unreadCount: unreadCount,
+              onMarkAllRead: allItems.isEmpty || unreadCount == 0
+                  ? null
+                  : () => _markAllAsRead(allItems),
             ),
             12.hS,
             Expanded(
