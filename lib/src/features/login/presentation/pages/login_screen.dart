@@ -117,6 +117,14 @@ class _LoginScreenState extends State<LoginScreen>
                   type: ToastType.error,
                 );
               } else if (state is AuthLoginSuccessState) {
+                await SessionManager.saveLoginStatus(true);
+                await SessionManager.saveUserSession(state.data);
+                if (state.data.data?.accessToken != null && state.data.data!.accessToken!.isNotEmpty) {
+                  await SessionManager.saveSessionId(state.data.data?.accessToken);
+                }
+                if (state.data.data?.refreshToken != null && state.data.data!.refreshToken!.isNotEmpty) {
+                  await SessionManager.saveRefreshToken(state.data.data?.refreshToken);
+                }
                 if (_rememberMe) {
                   await SessionManager.saveCredentials(
                     _emailController.text.trim(),

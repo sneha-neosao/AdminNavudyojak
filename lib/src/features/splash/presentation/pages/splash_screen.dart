@@ -21,8 +21,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _authCheckDone = false;
   bool _isTimerFinished = false;
-  bool? _isAuthenticated;
+  bool _hasNavigated = false;
+  AuthLoginState? _authState;
 
   @override
   void initState() {
@@ -38,8 +40,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateIfReady() {
-    if (_isTimerFinished && _isAuthenticated != null) {
-      if (_isAuthenticated == true) {
+    if (_authCheckDone && _isTimerFinished && _authState != null && !_hasNavigated) {
+      _hasNavigated = true;
+      if (_authState is AuthCheckSignInStatusSuccessState) {
         context.go(AppRoute.home.path);
       } else {
         context.go(AppRoute.login.path);
@@ -55,15 +58,23 @@ class _SplashScreenState extends State<SplashScreen> {
     final Color textColor = theme.colorScheme.onSurface;
     final Color accentColor = theme.colorScheme.primary;
 
-    return BlocProvider<AuthLoginBloc>(
-      create: (_) => getIt<AuthLoginBloc>()..add(AuthCheckSignInStatusEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthLoginBloc>(
+          create: (_) =>
+              getIt<AuthLoginBloc>()..add(AuthCheckSignInStatusEvent()),
+        ),
+      ],
       child: BlocListener<AuthLoginBloc, AuthLoginState>(
+        listenWhen: (_, current) =>
+            current is AuthCheckSignInStatusSuccessState ||
+            current is AuthCheckSignInStatusFailureState,
         listener: (context, state) {
-          if (state is AuthCheckSignInStatusSuccessState) {
-            _isAuthenticated = true;
-            _navigateIfReady();
-          } else if (state is AuthCheckSignInStatusFailureState) {
-            _isAuthenticated = false;
+          if (mounted) {
+            setState(() {
+              _authCheckDone = true;
+              _authState = state;
+            });
             _navigateIfReady();
           }
         },

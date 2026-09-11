@@ -159,8 +159,10 @@ class ApiInterceptor extends Interceptor {
           );
 
           if (refreshResponse.statusCode == 200 && refreshResponse.data['data'] != null) {
-            final newToken = refreshResponse.data['data']['access_token'];
-            final newRefreshToken = refreshResponse.data['data']['refresh_token'];
+            final newToken = refreshResponse.data['data']['access_token'] ??
+                refreshResponse.data['data']['access'];
+            final newRefreshToken = refreshResponse.data['data']['refresh_token'] ??
+                refreshResponse.data['data']['refresh'];
             print("new token after refresh token api called: ${newToken}");
 
             if (newToken != null) {

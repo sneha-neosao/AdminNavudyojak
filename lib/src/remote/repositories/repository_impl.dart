@@ -44,11 +44,11 @@ class AuthRepositoryImpl implements Repository {
           await SessionManager.saveUserSession(respData);
 
           // Save tokens to their dedicated keys so ApiInterceptor can read them
-          if (respData.data?.access != null) {
-            await SessionManager.saveSessionId(respData.data?.access);
+          if (respData.data?.accessToken != null && respData.data!.accessToken!.isNotEmpty) {
+            await SessionManager.saveSessionId(respData.data?.accessToken);
           }
-          if (respData.data?.refresh != null) {
-            await SessionManager.saveRefreshToken(respData.data?.refresh);
+          if (respData.data?.refreshToken != null && respData.data!.refreshToken!.isNotEmpty) {
+            await SessionManager.saveRefreshToken(respData.data?.refreshToken);
           }
 
           return Right(respData);

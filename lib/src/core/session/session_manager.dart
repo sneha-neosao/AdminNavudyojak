@@ -11,9 +11,9 @@ class SessionManager {
     return prefs.containsKey(key);
   }
 
-  static saveLoginStatus(bool isLoggedIn) async {
+  static Future<void> saveLoginStatus(bool isLoggedIn) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setBool("isLoggedIn", isLoggedIn);
+    await prefs.setBool("isLoggedIn", isLoggedIn);
   }
 
   static Future<bool?> isLoggedIn() async {
@@ -21,9 +21,9 @@ class SessionManager {
     return prefs.getBool("isLoggedIn");
   }
 
-  static saveSessionId(String? token) async {
+  static Future<void> saveSessionId(String? token) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString("token", token ?? "");
+    await prefs.setString("token", token ?? "");
   }
 
   static Future<String?> getAuthToken() async {
@@ -31,9 +31,17 @@ class SessionManager {
     return prefs.getString("token");
   }
 
-  static saveRefreshToken(String? token) async {
+  static Future<void> saveAccessToken(String? token) async {
+    await saveSessionId(token);
+  }
+
+  static Future<String?> getAccessToken() async {
+    return getAuthToken();
+  }
+
+  static Future<void> saveRefreshToken(String? token) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString("refreshToken", token ?? "");
+    await prefs.setString("refreshToken", token ?? "");
   }
 
   static Future<String?> getRefreshToken() async {
@@ -53,9 +61,10 @@ class SessionManager {
     return LoginResponse.fromRawJson(raw);
   }
 
-  static saveFirebaseToken(String? firebasetoken) async {
+  static Future<void> saveFirebaseToken(String? firebasetoken) async {
+    if (firebasetoken == null || firebasetoken.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString("firebasetoken", firebasetoken!);
+    await prefs.setString("firebasetoken", firebasetoken);
   }
 
   static Future<String?> getFirebaseToken() async {
