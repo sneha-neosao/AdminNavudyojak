@@ -1,7 +1,7 @@
 import 'package:admin_navudyojak/src/features/customers/widget/customer_detail_item.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../widgets/app_snackbar_widget.dart';
@@ -30,27 +30,29 @@ class CustomerListCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // 1. Initial Loading State
+    // 1. Initial Loading State using Skeletonizer
     if (isLoading) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 60.h),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CupertinoActivityIndicator(
-                color: AppColor.primary,
-                radius: 14.r,
+      return Skeletonizer(
+        enabled: true,
+        child: Column(
+          children: List.generate(
+            10,
+            (index) => Padding(
+              padding: EdgeInsets.only(
+                bottom: index == 9 ? 0 : 12.h,
               ),
-              12.hS,
-              Text(
-                'Loading customers...',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColor.textSecondary,
-                  fontSize: 13.sp,
+              child: _buildCustomerItemCard(
+                context,
+                const CustomerDetailItem(
+                  initials: 'AS',
+                  name: 'Akshay Sathe',
+                  phone: '97674 10452',
+                  city: 'Kolhapur',
+                  amount: '₹2,66,000',
+                  code: 'CUST-0001',
                 ),
               ),
-            ],
+            ),
           ),
         ),
       );
@@ -170,11 +172,19 @@ class CustomerListCardWidget extends StatelessWidget {
         }),
         if (isLoadingMore)
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.h),
-            child: Center(
-              child: CupertinoActivityIndicator(
-                color: AppColor.primary,
-                radius: 12.r,
+            padding: EdgeInsets.only(top: 12.h),
+            child: Skeletonizer(
+              enabled: true,
+              child: _buildCustomerItemCard(
+                context,
+                const CustomerDetailItem(
+                  initials: 'AS',
+                  name: 'Akshay Sathe',
+                  phone: '97674 10452',
+                  city: 'Kolhapur',
+                  amount: '₹2,66,000',
+                  code: 'CUST-0001',
+                ),
               ),
             ),
           ),
