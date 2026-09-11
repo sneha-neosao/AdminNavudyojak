@@ -15,15 +15,19 @@ import '../models/customers_model/customer_details_response.dart';
 import '../models/app_version_model/app_version_response.dart';
 import '../models/profile_model/profile_details_response.dart';
 import '../models/notifications_model/notifications_response.dart';
+import '../models/auth_model/forgot_password_response.dart';
 import '../../features/customers/domain/usecase/customers_usecase.dart';
 import '../../features/app_version/domain/usecase/app_version_usecase.dart';
 import '../../features/notifications/domain/usecase/notifications_usecase.dart';
+import '../../features/login/domain/usecase/forgot_password_usecase.dart';
 
 /// Abstract Repository interface defining all data operations for the app
 abstract class Repository {
   /// Authentication
   Future<Either<Failure, LoginResponse>> login(LoginParams params);
   Future<Either<Failure, LogoutResponse>> logout(NoParams params);
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, ForgotPasswordResponse>> forgot_password(ForgotPasswordParams params);
 
   /// Customers
   // ignore: non_constant_identifier_names
@@ -306,6 +310,43 @@ class AuthRepositoryImpl implements Repository {
               respData.message?.isNotEmpty == true
                   ? respData.message!
                   : "Failed to fetch notifications",
+            ));
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(InternetFailure(mapFailureToMessage(InternetFailure(""))));
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, ForgotPasswordResponse>> forgot_password(
+      ForgotPasswordParams params) async {
+    return _networkInfo.check(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.forgot_password(params);
+
+          if (respData.success == false) {
+            return Left(ServerFailure(
+              respData.message?.isNotEmpty == true
+                  ? respData.message!
+                  : "Failed to send reset link",
             ));
           }
 

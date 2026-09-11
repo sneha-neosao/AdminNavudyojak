@@ -13,6 +13,8 @@ import '../models/customers_model/customer_details_response.dart';
 import '../models/app_version_model/app_version_response.dart';
 import '../models/profile_model/profile_details_response.dart';
 import '../models/notifications_model/notifications_response.dart';
+import '../models/auth_model/forgot_password_response.dart';
+import '../../features/login/domain/usecase/forgot_password_usecase.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
@@ -23,6 +25,11 @@ abstract class RemoteDataSource {
   // ignore: non_constant_identifier_names
   Future<LogoutResponse> Logout(String token, String refreshToken);
   Future<LogoutResponse> logout(String token, String refreshToken);
+
+  // ignore: non_constant_identifier_names
+  Future<ForgotPasswordResponse> ForgotPassword(ForgotPasswordParams params);
+  // ignore: non_constant_identifier_names
+  Future<ForgotPasswordResponse> forgot_password(ForgotPasswordParams params);
 
   /// Customers
   // ignore: non_constant_identifier_names
@@ -366,6 +373,44 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = NotificationsResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ForgotPasswordResponse> ForgotPassword(ForgotPasswordParams params) async {
+    return forgot_password(params);
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ForgotPasswordResponse> forgot_password(ForgotPasswordParams params) async {
+    try {
+      final response = await _helper.execute(
+        method: Method.post,
+        url: ApiUrl.forgotPassword,
+        data: params.toJson(),
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final respData = ForgotPasswordResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

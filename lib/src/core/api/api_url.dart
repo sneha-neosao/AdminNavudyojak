@@ -35,6 +35,7 @@ class ApiUrl {
 
   static const profile = "/auth/profile";
   static const authProfile = "/auth/profile";
+  static const forgotPassword = "/auth/forgot-password";
 
   static const onlineStatus = "/auth/toggle-online";
 

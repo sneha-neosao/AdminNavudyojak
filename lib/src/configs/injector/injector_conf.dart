@@ -71,6 +71,10 @@ void configureDepedencies() {
     () => NotificationsUseCase(getIt<Repository>()),
   );
 
+  getIt.registerLazySingleton<ForgotPasswordUseCase>(
+    () => ForgotPasswordUseCase(getIt<Repository>()),
+  );
+
   /// Auth & Login BLoCs registered per Rule 4
   getIt.registerFactory<AuthLoginBloc>(
     () => AuthLoginBloc(
@@ -81,6 +85,14 @@ void configureDepedencies() {
 
   getIt.registerFactory<AuthLoginFormBloc>(
     () => AuthLoginFormBloc(),
+  );
+
+  getIt.registerFactory<ForgotPasswordFormBloc>(
+    () => ForgotPasswordFormBloc(),
+  );
+
+  getIt.registerFactory<ForgotPasswordBloc>(
+    () => ForgotPasswordBloc(getIt<ForgotPasswordUseCase>()),
   );
 
   /// Customers BLoC registered per Rule 4

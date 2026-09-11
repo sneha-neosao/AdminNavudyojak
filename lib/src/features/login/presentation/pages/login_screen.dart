@@ -265,9 +265,6 @@ class _LoginScreenState extends State<LoginScreen>
                                           onForgotPassword: () {
                                             ForgotPasswordBottomSheetWidget.show(
                                               context,
-                                              initialEmail: _emailController
-                                                  .text
-                                                  .trim(),
                                             );
                                           },
                                         ),

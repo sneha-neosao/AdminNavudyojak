@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/extensions/string_validator_extension.dart';
 import '../../../core/theme/app_color.dart';
+import '../bloc/forgot_password_form_bloc/forgot_password_form_bloc.dart';
 
 class ForgotPasswordInputWidget extends StatelessWidget {
   final TextEditingController controller;
@@ -35,7 +37,12 @@ class ForgotPasswordInputWidget extends StatelessWidget {
           controller: controller,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           keyboardType: TextInputType.emailAddress,
-          onChanged: onChanged,
+          onChanged: (val) {
+            context
+                .read<ForgotPasswordFormBloc>()
+                .add(ForgotPasswordEmailChangedEvent(val));
+            onChanged?.call(val);
+          },
           style: TextStyle(
             color: AppColor.black,
             fontSize: 14.5.sp,
@@ -45,7 +52,7 @@ class ForgotPasswordInputWidget extends StatelessWidget {
             if (validator != null) {
               return validator!(val);
             }
-            final text = val?.trim() ?? '';
+            final text = val?.trim() ?? controller.text.trim();
             if (text.isEmpty) {
               return 'Please enter your email address';
             }
@@ -55,7 +62,7 @@ class ForgotPasswordInputWidget extends StatelessWidget {
             return null;
           },
           decoration: InputDecoration(
-            hintText: 'seema@gmail.com',
+            hintText: 'Enter your email',
             hintStyle: TextStyle(
               color: AppColor.slateGrey.withValues(alpha: 0.65),
               fontSize: 14.sp,
