@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/theme/app_color.dart';
 import '../../../login/bloc/auth_login_bloc/auth_login_bloc.dart';
+import '../../../profile/bloc/profile_details_bloc/profile_details_bloc.dart';
 import '../../widgets/settings_content_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -13,12 +14,30 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  late final ProfileDetailsBloc _profileDetailsBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileDetailsBloc = getIt<ProfileDetailsBloc>();
+    _profileDetailsBloc.add(const GetProfileDetailsEvent());
+  }
+
+  @override
+  void dispose() {
+    _profileDetailsBloc.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthLoginBloc>(
           create: (_) => getIt<AuthLoginBloc>(),
+        ),
+        BlocProvider<ProfileDetailsBloc>.value(
+          value: _profileDetailsBloc,
         ),
       ],
       child: const Scaffold(

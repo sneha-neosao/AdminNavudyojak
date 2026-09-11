@@ -33,7 +33,8 @@ class ApiUrl {
 
   static const foodCurrentAssignment = "/food-orders/current-assignment";
 
-  static const profile = "/profile/details";
+  static const profile = "/auth/profile";
+  static const authProfile = "/auth/profile";
 
   static const onlineStatus = "/auth/toggle-online";
 

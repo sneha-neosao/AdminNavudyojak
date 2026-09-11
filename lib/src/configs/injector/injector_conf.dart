@@ -63,6 +63,10 @@ void configureDepedencies() {
     () => AppVersionUseCase(getIt<Repository>()),
   );
 
+  getIt.registerLazySingleton<ProfileDetailsUseCase>(
+    () => ProfileDetailsUseCase(getIt<Repository>()),
+  );
+
   /// Auth & Login BLoCs registered per Rule 4
   getIt.registerFactory<AuthLoginBloc>(
     () => AuthLoginBloc(
@@ -88,5 +92,10 @@ void configureDepedencies() {
   /// App Version BLoC registered per Rule 4
   getIt.registerFactory<AppVersionBloc>(
     () => AppVersionBloc(getIt<AppVersionUseCase>()),
+  );
+
+  /// Profile Details BLoC registered per Rule 4
+  getIt.registerFactory<ProfileDetailsBloc>(
+    () => ProfileDetailsBloc(getIt<ProfileDetailsUseCase>()),
   );
 }

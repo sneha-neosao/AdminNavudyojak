@@ -11,6 +11,7 @@ import '../models/auth_model/logout_response.dart';
 import '../models/customers_model/customers_response.dart';
 import '../models/customers_model/customer_details_response.dart';
 import '../models/app_version_model/app_version_response.dart';
+import '../models/profile_model/profile_details_response.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
@@ -52,6 +53,12 @@ abstract class RemoteDataSource {
   Future<AppVersionResponse> AppVersionCheck({String appName = "admin_app"});
   // ignore: non_constant_identifier_names
   Future<AppVersionResponse> app_version_check({String appName = "admin_app"});
+
+  /// Profile
+  // ignore: non_constant_identifier_names
+  Future<ProfileDetailsResponse> ProfileDetails();
+  // ignore: non_constant_identifier_names
+  Future<ProfileDetailsResponse> profile_details();
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -280,6 +287,42 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = AppVersionResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ProfileDetailsResponse> ProfileDetails() async {
+    return profile_details();
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ProfileDetailsResponse> profile_details() async {
+    try {
+      final response = await _helper.execute(
+        method: Method.get,
+        url: ApiUrl.authProfile,
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+          },
+        ),
+      );
+
+      final respData = ProfileDetailsResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();
