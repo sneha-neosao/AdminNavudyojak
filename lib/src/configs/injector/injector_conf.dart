@@ -138,6 +138,15 @@ void configureDepedencies() {
     () => MarkAllNotificationsReadBloc(getIt<MarkAllNotificationsReadUseCase>()),
   );
 
+  /// Mark Single Notification Read UseCase and BLoC registered per Rule 4
+  getIt.registerLazySingleton<MarkNotificationReadUseCase>(
+    () => MarkNotificationReadUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<MarkNotificationReadBloc>(
+    () => MarkNotificationReadBloc(getIt<MarkNotificationReadUseCase>()),
+  );
+
   /// Business Performance Analytics registered per Rule 4
   getIt.registerLazySingleton<BusinessPerformanceUseCase>(
     () => BusinessPerformanceUseCase(getIt<Repository>()),

@@ -6,6 +6,7 @@ import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../widgets/app_snackbar_widget.dart';
 import '../bloc/mark_all_notifications_read_bloc/mark_all_notifications_read_bloc.dart';
+import '../bloc/mark_notification_read_bloc/mark_notification_read_bloc.dart';
 import '../bloc/notifications_bloc/notifications_bloc.dart';
 import 'notification_item.dart';
 import 'notification_list_card_widget.dart';
@@ -63,16 +64,16 @@ class _NotificationsContentWidgetState
   }
 
   void _onNotificationTap(NotificationItem item) {
-    if (!item.isRead) {
-      setState(() {
-        _locallyReadIds.add(item.id);
-      });
+    final markReadState = context.read<MarkNotificationReadBloc>().state;
+    if (markReadState is MarkNotificationReadLoadingState) {
+      return;
     }
-    AppSnackBarWidget.show(
-      context,
-      message: item.title,
-      type: ToastType.info,
-    );
+
+    if (!item.isRead) {
+      context
+          .read<MarkNotificationReadBloc>()
+          .add(ExecuteMarkNotificationReadEvent(item.id));
+    }
   }
 
   @override
@@ -159,9 +160,15 @@ class _NotificationsContentWidgetState
                 return NotificationsFilterChipsWidget(
                   selectedFilter: _selectedFilter,
                   onFilterChanged: (filter) {
-                    setState(() {
-                      _selectedFilter = filter;
-                    });
+                    if (_selectedFilter != filter) {
+                      setState(() {
+                        _selectedFilter = filter;
+                      });
+                      final statusParam = filter.toLowerCase();
+                      context
+                          .read<NotificationsBloc>()
+                          .add(FilterNotificationsEvent(statusParam));
+                    }
                   },
                   unreadCount: unreadCount,
                   isLoading: isMarkingRead,
@@ -199,31 +206,64 @@ class _NotificationsContentWidgetState
                       return _buildEmptyState(theme);
                     }
 
-                    // 4. Notifications List with pagination indicator
-                    return ListView.builder(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(
-                        parent: BouncingScrollPhysics(),
-                      ),
-                      padding: EdgeInsets.only(bottom: 24.h),
-                      itemCount: displayedList.length + (isLoadingMore ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == displayedList.length) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16.h),
-                              child: const CircularProgressIndicator(
-                                color: AppColor.cockpitOrange,
-                                strokeWidth: 2.5,
-                              ),
-                            ),
+                    // 4. Notifications List with per-card blur loader and pagination
+                    return BlocConsumer<MarkNotificationReadBloc,
+                        MarkNotificationReadState>(
+                      listener: (context, markReadState) {
+                        if (markReadState is MarkNotificationReadSuccessState) {
+                          // Refresh notifications list on success
+                          context
+                              .read<NotificationsBloc>()
+                              .add(RefreshNotificationsEvent());
+                          setState(() {
+                            _locallyReadIds.add(markReadState.notificationId);
+                          });
+                        } else if (markReadState
+                            is MarkNotificationReadFailureState) {
+                          AppSnackBarWidget.show(
+                            context,
+                            message: markReadState.message,
+                            type: ToastType.error,
                           );
                         }
+                      },
+                      builder: (context, markReadState) {
+                        final loadingNotificationId =
+                            markReadState is MarkNotificationReadLoadingState
+                                ? markReadState.notificationId
+                                : null;
 
-                        final item = displayedList[index];
-                        return NotificationListCardWidget(
-                          item: item,
-                          onTap: () => _onNotificationTap(item),
+                        return ListView.builder(
+                          controller: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics(),
+                          ),
+                          padding: EdgeInsets.only(bottom: 24.h),
+                          itemCount:
+                              displayedList.length + (isLoadingMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == displayedList.length) {
+                              return Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                                  child: const CircularProgressIndicator(
+                                    color: AppColor.cockpitOrange,
+                                    strokeWidth: 2.5,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final item = displayedList[index];
+                            final isCardLoading =
+                                loadingNotificationId == item.id;
+
+                            return NotificationListCardWidget(
+                              item: item,
+                              isLoading: isCardLoading,
+                              onTap: () => _onNotificationTap(item),
+                            );
+                          },
                         );
                       },
                     );
@@ -302,7 +342,11 @@ class _NotificationsContentWidgetState
               ElevatedButton.icon(
                 onPressed: () {
                   context.read<NotificationsBloc>().add(
-                        const GetNotificationsEvent(page: 1, limit: 10),
+                        GetNotificationsEvent(
+                          page: 1,
+                          limit: 10,
+                          status: _selectedFilter.toLowerCase(),
+                        ),
                       );
                 },
                 icon: const Icon(Icons.refresh, color: AppColor.pureWhite),

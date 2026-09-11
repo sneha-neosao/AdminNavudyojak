@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/theme/app_color.dart';
 import '../../bloc/mark_all_notifications_read_bloc/mark_all_notifications_read_bloc.dart';
+import '../../bloc/mark_notification_read_bloc/mark_notification_read_bloc.dart';
 import '../../bloc/notifications_bloc/notifications_bloc.dart';
 import '../../widgets/notifications_content_widget.dart';
 
@@ -19,11 +20,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<NotificationsBloc>(
-          create: (_) =>
-              getIt<NotificationsBloc>()..add(const GetNotificationsEvent()),
+          create: (_) => getIt<NotificationsBloc>()
+            ..add(const GetNotificationsEvent(status: 'all')),
         ),
         BlocProvider<MarkAllNotificationsReadBloc>(
           create: (_) => getIt<MarkAllNotificationsReadBloc>(),
+        ),
+        BlocProvider<MarkNotificationReadBloc>(
+          create: (_) => getIt<MarkNotificationReadBloc>(),
         ),
       ],
       child: const Scaffold(

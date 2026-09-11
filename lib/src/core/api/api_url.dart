@@ -57,10 +57,13 @@ class ApiUrl {
   static const notifications = "/notifications";
   static const notificationsCounts = "/notifications/counts";
   static const markAllNotificationsAsRead = "/notifications/mark-all-as-read";
-  static String notificationsUrl({int? page, int? limit}) {
+  static String markNotificationAsRead(String id) =>
+      "/notifications/$id/mark-as-read";
+  static String notificationsUrl({int? page, int? limit, String? status}) {
     final queryParams = <String>[];
     if (page != null) queryParams.add("page=$page");
     if (limit != null) queryParams.add("limit=$limit");
+    if (status != null && status.isNotEmpty) queryParams.add("status=$status");
     if (queryParams.isEmpty) return notifications;
     return "$notifications?${queryParams.join('&')}";
   }

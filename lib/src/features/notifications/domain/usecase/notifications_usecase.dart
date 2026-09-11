@@ -8,14 +8,16 @@ import '../../../../remote/repositories/repository_impl.dart';
 class NotificationsParams extends Equatable {
   final int page;
   final int limit;
+  final String status;
 
   const NotificationsParams({
     this.page = 1,
     this.limit = 10,
+    this.status = 'all',
   });
 
   @override
-  List<Object?> get props => [page, limit];
+  List<Object?> get props => [page, limit, status];
 }
 
 class NotificationsUseCase implements UseCase<NotificationsResponse, NotificationsParams> {

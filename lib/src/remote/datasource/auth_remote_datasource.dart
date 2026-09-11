@@ -16,6 +16,7 @@ import '../models/profile_model/update_fcm_token_response.dart';
 import '../models/notifications_model/notifications_response.dart';
 import '../models/notifications_model/notifications_count_response.dart';
 import '../models/notifications_model/mark_all_read_response.dart';
+import '../models/notifications_model/mark_notification_read_response.dart';
 import '../models/analytics_model/business_performance_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
@@ -75,9 +76,9 @@ abstract class RemoteDataSource {
 
   /// Notifications
   // ignore: non_constant_identifier_names
-  Future<NotificationsResponse> NotificationsList({int? page, int? limit});
+  Future<NotificationsResponse> NotificationsList({int? page, int? limit, String? status});
   // ignore: non_constant_identifier_names
-  Future<NotificationsResponse> notifications_list({int? page, int? limit});
+  Future<NotificationsResponse> notifications_list({int? page, int? limit, String? status});
 
   // ignore: non_constant_identifier_names
   Future<NotificationsCountResponse> NotificationsCounts();
@@ -88,6 +89,11 @@ abstract class RemoteDataSource {
   Future<MarkAllNotificationsReadResponse> MarkAllNotificationsAsRead();
   // ignore: non_constant_identifier_names
   Future<MarkAllNotificationsReadResponse> mark_all_notifications_as_read();
+
+  // ignore: non_constant_identifier_names
+  Future<MarkNotificationReadResponse> MarkNotificationAsRead(String id);
+  // ignore: non_constant_identifier_names
+  Future<MarkNotificationReadResponse> mark_notification_as_read(String id);
 
   /// Analytics
   // ignore: non_constant_identifier_names
@@ -381,17 +387,17 @@ class RemoteDataSourceImpl implements RemoteDataSource {
 
   @override
   // ignore: non_constant_identifier_names
-  Future<NotificationsResponse> NotificationsList({int? page, int? limit}) async {
-    return notifications_list(page: page, limit: limit);
+  Future<NotificationsResponse> NotificationsList({int? page, int? limit, String? status}) async {
+    return notifications_list(page: page, limit: limit, status: status);
   }
 
   @override
   // ignore: non_constant_identifier_names
-  Future<NotificationsResponse> notifications_list({int? page, int? limit}) async {
+  Future<NotificationsResponse> notifications_list({int? page, int? limit, String? status}) async {
     try {
       final response = await _helper.execute(
         method: Method.get,
-        url: ApiUrl.notificationsUrl(page: page, limit: limit),
+        url: ApiUrl.notificationsUrl(page: page, limit: limit, status: status),
         options: Options(
           headers: {
             'accept': 'application/json',
@@ -588,6 +594,42 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = UpdateFcmTokenResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<MarkNotificationReadResponse> MarkNotificationAsRead(String id) async {
+    return mark_notification_as_read(id);
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<MarkNotificationReadResponse> mark_notification_as_read(String id) async {
+    try {
+      final response = await _helper.execute(
+        method: Method.post,
+        url: ApiUrl.markNotificationAsRead(id),
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+          },
+        ),
+      );
+
+      final respData = MarkNotificationReadResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

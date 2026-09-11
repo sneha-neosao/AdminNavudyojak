@@ -18,6 +18,7 @@ import '../models/profile_model/update_fcm_token_response.dart';
 import '../models/notifications_model/notifications_response.dart';
 import '../models/notifications_model/notifications_count_response.dart';
 import '../models/notifications_model/mark_all_read_response.dart';
+import '../models/notifications_model/mark_notification_read_response.dart';
 import '../models/analytics_model/business_performance_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
 import '../../features/customers/domain/usecase/customers_usecase.dart';
@@ -55,6 +56,8 @@ abstract class Repository {
   Future<Either<Failure, NotificationsCountResponse>> notifications_counts(NoParams params);
   // ignore: non_constant_identifier_names
   Future<Either<Failure, MarkAllNotificationsReadResponse>> mark_all_notifications_as_read(NoParams params);
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, MarkNotificationReadResponse>> mark_notification_as_read(String id);
 
   /// Analytics
   // ignore: non_constant_identifier_names
@@ -320,6 +323,7 @@ class AuthRepositoryImpl implements Repository {
           final respData = await _remoteDataSource.notifications_list(
             page: params.page,
             limit: params.limit,
+            status: params.status,
           );
 
           if (respData.success == false) {
@@ -515,6 +519,44 @@ class AuthRepositoryImpl implements Repository {
               respData.message?.isNotEmpty == true
                   ? respData.message!
                   : "Failed to update FCM token",
+            ));
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(
+              InternetFailure(mapFailureToMessage(InternetFailure(""))));
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, MarkNotificationReadResponse>> mark_notification_as_read(
+      String id) async {
+    return _networkInfo.check(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.mark_notification_as_read(id);
+
+          if (respData.success == false) {
+            return Left(ServerFailure(
+              respData.message?.isNotEmpty == true
+                  ? respData.message!
+                  : "Failed to mark notification as read",
             ));
           }
 

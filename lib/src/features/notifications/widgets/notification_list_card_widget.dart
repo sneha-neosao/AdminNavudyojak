@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/extensions/integer_sizedbox_extension.dart';
@@ -8,11 +9,13 @@ import 'notification_item.dart';
 class NotificationListCardWidget extends StatelessWidget {
   final NotificationItem item;
   final VoidCallback? onTap;
+  final bool isLoading;
 
   const NotificationListCardWidget({
     super.key,
     required this.item,
     this.onTap,
+    this.isLoading = false,
   });
 
   Color _getIconColor(NotificationType type) {
@@ -66,113 +69,144 @@ class NotificationListCardWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: Material(
-        color: AppColor.transparent,
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(16.r),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16.r),
-          onTap: () {
-            if (onTap != null) {
-              onTap!();
-            } else {
-              AppSnackBarWidget.show(
-                context,
-                message: item.title,
-                type: ToastType.info,
-              );
-            }
-          },
-          splashColor: AppColor.orangeTint2.withValues(alpha: 0.5),
-          highlightColor: AppColor.orangeTint2.withValues(alpha: 0.3),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Icon Circle
-                Container(
-                  width: 42.r,
-                  height: 42.r,
-                  decoration: BoxDecoration(
-                    color: iconBgColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      item.icon,
-                      size: 20.sp,
-                      color: iconColor,
-                    ),
-                  ),
-                ),
-                12.wS,
-
-                // Content
-                Expanded(
-                  child: Column(
+        child: Stack(
+          children: [
+            Material(
+              color: AppColor.transparent,
+              borderRadius: BorderRadius.circular(16.r),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16.r),
+                onTap: isLoading
+                    ? null
+                    : () {
+                        if (onTap != null) {
+                          onTap!();
+                        } else {
+                          AppSnackBarWidget.show(
+                            context,
+                            message: item.title,
+                            type: ToastType.info,
+                          );
+                        }
+                      },
+                splashColor: AppColor.orangeTint2.withValues(alpha: 0.5),
+                highlightColor: AppColor.orangeTint2.withValues(alpha: 0.3),
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.title,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontSize: 14.sp,
-                                fontWeight: item.isRead
-                                    ? FontWeight.w600
-                                    : FontWeight.w700,
-                                color: AppColor.black,
+                      // Icon Circle
+                      Container(
+                        width: 42.r,
+                        height: 42.r,
+                        decoration: BoxDecoration(
+                          color: iconBgColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            item.icon,
+                            size: 20.sp,
+                            color: iconColor,
+                          ),
+                        ),
+                      ),
+                      12.wS,
+
+                      // Content
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.title,
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontSize: 14.sp,
+                                      fontWeight: item.isRead
+                                          ? FontWeight.w600
+                                          : FontWeight.w700,
+                                      color: AppColor.black,
+                                    ),
+                                    softWrap: true,
+                                  ),
+                                ),
+                                6.wS,
+                                Text(
+                                  item.time,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    fontSize: 11.5.sp,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColor.textSecondary,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ],
+                            ),
+                            4.hS,
+                            Text(
+                              item.message,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontSize: 12.5.sp,
+                                fontWeight: FontWeight.w400,
+                                color: AppColor.textSecondary,
+                                height: 1.35,
                               ),
                               softWrap: true,
                             ),
-                          ),
-                          6.wS,
-                          Text(
-                            item.time,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              fontSize: 11.5.sp,
-                              fontWeight: FontWeight.w400,
-                              color: AppColor.textSecondary,
-                            ),
-                            softWrap: true,
-                          ),
-                        ],
-                      ),
-                      4.hS,
-                      Text(
-                        item.message,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12.5.sp,
-                          fontWeight: FontWeight.w400,
-                          color: AppColor.textSecondary,
-                          height: 1.35,
+                          ],
                         ),
-                        softWrap: true,
                       ),
+
+                      // Unread Indicator Dot
+                      if (!item.isRead) ...[
+                        8.wS,
+                        Padding(
+                          padding: EdgeInsets.only(top: 4.h),
+                          child: Container(
+                            width: 8.r,
+                            height: 8.r,
+                            decoration: const BoxDecoration(
+                              color: AppColor.cockpitOrange,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
+              ),
+            ),
 
-                // Unread Indicator Dot
-                if (!item.isRead) ...[
-                  8.wS,
-                  Padding(
-                    padding: EdgeInsets.only(top: 4.h),
-                    child: Container(
-                      width: 8.r,
-                      height: 8.r,
-                      decoration: const BoxDecoration(
-                        color: AppColor.cockpitOrange,
-                        shape: BoxShape.circle,
+            // Blurry Loader Overlay
+            if (isLoading)
+              Positioned.fill(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+                  child: Container(
+                    color: AppColor.pureWhite.withValues(alpha: 0.55),
+                    child: const Center(
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: AppColor.cockpitOrange,
+                        ),
                       ),
                     ),
                   ),
-                ],
-              ],
-            ),
-          ),
+                ),
+              ),
+          ],
         ),
       ),
     );

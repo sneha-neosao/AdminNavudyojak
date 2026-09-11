@@ -11,11 +11,13 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   final NotificationsUseCase _notificationsUseCase;
 
   int _currentPage = 1;
+  String _currentStatus = 'all';
   static const int _limit = 10;
 
   NotificationsBloc(this._notificationsUseCase)
       : super(NotificationsInitialState()) {
     on<GetNotificationsEvent>(_getNotifications);
+    on<FilterNotificationsEvent>(_filterNotifications);
     on<LoadMoreNotificationsEvent>(_loadMoreNotifications);
     on<RefreshNotificationsEvent>(_refreshNotifications);
   }
@@ -25,12 +27,14 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     Emitter<NotificationsState> emit,
   ) async {
     _currentPage = event.page;
+    _currentStatus = event.status;
     emit(NotificationsLoadingState());
 
     final result = await _notificationsUseCase.call(
       NotificationsParams(
         page: _currentPage,
         limit: event.limit,
+        status: _currentStatus,
       ),
     );
 
@@ -41,6 +45,39 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
         final totalPages = data.data?.pagination?.totalPages ?? 1;
         final hasReachedMax =
             _currentPage >= totalPages || results.length < event.limit;
+
+        emit(NotificationsSuccessState(
+          data,
+          allResults: results,
+          hasReachedMax: hasReachedMax,
+          isLoadingMore: false,
+        ));
+      },
+    );
+  }
+
+  Future<void> _filterNotifications(
+    FilterNotificationsEvent event,
+    Emitter<NotificationsState> emit,
+  ) async {
+    _currentPage = 1;
+    _currentStatus = event.status;
+    emit(NotificationsLoadingState());
+
+    final result = await _notificationsUseCase.call(
+      NotificationsParams(
+        page: 1,
+        limit: _limit,
+        status: _currentStatus,
+      ),
+    );
+
+    result.fold(
+      (failure) => emit(NotificationsFailureState(failure.message)),
+      (data) {
+        final results = data.data?.results ?? [];
+        final totalPages = data.data?.pagination?.totalPages ?? 1;
+        final hasReachedMax = 1 >= totalPages || results.length < _limit;
 
         emit(NotificationsSuccessState(
           data,
@@ -69,6 +106,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       NotificationsParams(
         page: nextPage,
         limit: _limit,
+        status: _currentStatus,
       ),
     );
 
@@ -100,9 +138,10 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     _currentPage = 1;
 
     final result = await _notificationsUseCase.call(
-      const NotificationsParams(
+      NotificationsParams(
         page: 1,
         limit: _limit,
+        status: _currentStatus,
       ),
     );
 
