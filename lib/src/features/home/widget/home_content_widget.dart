@@ -195,6 +195,7 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                               '₹0',
                     dailyBreakdown: data?.businessMovement?.dailyBreakdown,
                     currentPeriod: currentPeriod,
+                    granularity: data?.businessMovement?.granularity,
                     isLoading: isChangingPeriod,
                     onPeriodChanged: (period) {
                       context.read<AdminDashboardBloc>().add(

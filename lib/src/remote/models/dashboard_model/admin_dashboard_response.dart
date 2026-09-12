@@ -423,39 +423,51 @@ class MetricExpenses extends Equatable {
 
 class DashboardBusinessMovement extends Equatable {
   final String? period;
+  final String? granularity;
   final List<DailyBreakdownItem>? dailyBreakdown;
   final BusinessMovementSummary? summary;
 
   const DashboardBusinessMovement({
     this.period,
+    this.granularity,
     this.dailyBreakdown,
     this.summary,
   });
 
-  factory DashboardBusinessMovement.fromJson(Map<String, dynamic> json) =>
-      DashboardBusinessMovement(
-        period: json["period"]?.toString(),
-        dailyBreakdown: json["daily_breakdown"] != null &&
-                json["daily_breakdown"] is List
-            ? (json["daily_breakdown"] as List)
-                .map((x) => DailyBreakdownItem.fromJson(x as Map<String, dynamic>))
-                .toList()
-            : [],
-        summary: json["summary"] != null &&
-                json["summary"] is Map<String, dynamic>
-            ? BusinessMovementSummary.fromJson(
-                json["summary"] as Map<String, dynamic>)
-            : null,
-      );
+  factory DashboardBusinessMovement.fromJson(Map<String, dynamic> json) {
+    final rawBreakdown = json["daily_breakdown"] ??
+        json["weekly_breakdown"] ??
+        json["monthly_breakdown"] ??
+        json["breakdown"] ??
+        json["chart_data"] ??
+        json["data"] ??
+        json["items"];
+    return DashboardBusinessMovement(
+      period: json["period"]?.toString(),
+      granularity: (json["granularity"] ?? json["period"])?.toString(),
+      dailyBreakdown: rawBreakdown != null && rawBreakdown is List
+          ? rawBreakdown
+              .whereType<Map<String, dynamic>>()
+              .map((x) => DailyBreakdownItem.fromJson(x))
+              .toList()
+          : [],
+      summary: json["summary"] != null &&
+              json["summary"] is Map<String, dynamic>
+          ? BusinessMovementSummary.fromJson(
+              json["summary"] as Map<String, dynamic>)
+          : null,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "period": period,
+        "granularity": granularity,
         "daily_breakdown": dailyBreakdown?.map((x) => x.toJson()).toList(),
         "summary": summary?.toJson(),
       };
 
   @override
-  List<Object?> get props => [period, dailyBreakdown, summary];
+  List<Object?> get props => [period, granularity, dailyBreakdown, summary];
 }
 
 class DailyBreakdownItem extends Equatable {
@@ -479,14 +491,58 @@ class DailyBreakdownItem extends Equatable {
 
   factory DailyBreakdownItem.fromJson(Map<String, dynamic> json) =>
       DailyBreakdownItem(
-        dayShort: json["day_short"]?.toString(),
-        dayName: json["day_name"]?.toString(),
-        date: json["date"]?.toString(),
-        sales: json["sales"] as num? ?? 0,
-        purchases: json["purchases"] as num? ?? 0,
-        production: json["production"] as num? ?? 0,
-        expenses: json["expenses"] as num? ?? 0,
+        dayShort: (json["day_short"] ??
+                json["short_name"] ??
+                json["label"] ??
+                json["week"] ??
+                json["week_short"] ??
+                json["week_number"] ??
+                json["month"] ??
+                json["month_short"] ??
+                json["month_name"] ??
+                json["name"] ??
+                json["title"] ??
+                json["day"])
+            ?.toString(),
+        dayName: (json["day_name"] ??
+                json["name"] ??
+                json["title"] ??
+                json["week_name"] ??
+                json["month_name"] ??
+                json["full_name"] ??
+                json["label"])
+            ?.toString(),
+        date: (json["date"] ?? json["created_at"])?.toString(),
+        sales: _parseNum(
+          json["sales"] ??
+              json["total_sales"] ??
+              json["sales_value"] ??
+              json["value"] ??
+              json["amount"],
+        ),
+        purchases: _parseNum(
+          json["purchases"] ??
+              json["total_purchases"] ??
+              json["purchase_value"],
+        ),
+        production: _parseNum(
+          json["production"] ??
+              json["total_production"] ??
+              json["production_value"] ??
+              json["count"],
+        ),
+        expenses: _parseNum(
+          json["expenses"] ??
+              json["total_expenses"] ??
+              json["expense_value"],
+        ),
       );
+
+  static num _parseNum(dynamic val) {
+    if (val == null) return 0;
+    if (val is num) return val;
+    return num.tryParse(val.toString()) ?? 0;
+  }
 
   Map<String, dynamic> toJson() => {
         "day_short": dayShort,
