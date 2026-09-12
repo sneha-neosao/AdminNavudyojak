@@ -1,11 +1,12 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../remote/models/analytics_model/business_performance_response.dart';
-import '../../widgets/app_snackbar_widget.dart';
 
 class RevenueMarginCardWidget extends StatelessWidget {
   final RevenueAndMarginData? data;
@@ -20,7 +21,18 @@ class RevenueMarginCardWidget extends StatelessWidget {
   });
 
   static const List<String> _defaultMonthNames = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   @override
@@ -34,8 +46,9 @@ class RevenueMarginCardWidget extends StatelessWidget {
         ? data!.subtitle
         : 'Track growth without losing profitability.';
     final grossMargin = data != null ? data!.formattedGrossMargin : '24.8%';
-    final statusBadge =
-        data != null ? data!.formattedStatusBadge : '1.4% below target';
+    final statusBadge = data != null
+        ? data!.formattedStatusBadge
+        : '1.4% below target';
     final isBelowTarget = data?.isBelowTarget ?? true;
 
     final monthlyData = data?.monthlyData ?? [];
@@ -51,10 +64,7 @@ class RevenueMarginCardWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColor.pureWhite,
           borderRadius: BorderRadius.circular(22.r),
-          border: Border.all(
-            color: AppColor.metricCardBorder,
-            width: 1.2,
-          ),
+          border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
           boxShadow: [
             BoxShadow(
               color: AppColor.black.withValues(alpha: 0.03),
@@ -68,19 +78,7 @@ class RevenueMarginCardWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(22.r),
           child: InkWell(
             borderRadius: BorderRadius.circular(22.r),
-            onTap: isLoading
-                ? null
-                : () {
-                    if (onTap != null) {
-                      onTap!();
-                    } else {
-                      AppSnackBarWidget.show(
-                        context,
-                        message: 'Revenue & Margin chart selected',
-                        type: ToastType.info,
-                      );
-                    }
-                  },
+            onTap: isLoading ? null : onTap,
             splashColor: AppColor.orangeTint2.withValues(alpha: 0.5),
             highlightColor: AppColor.orangeTint2.withValues(alpha: 0.3),
             child: Padding(
@@ -165,8 +163,9 @@ class RevenueMarginCardWidget extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: hasData
                                         ? AppColor.cockpitOrange
-                                        : AppColor.metricCardBorder
-                                            .withValues(alpha: 0.7),
+                                        : AppColor.metricCardBorder.withValues(
+                                            alpha: 0.7,
+                                          ),
                                     borderRadius: BorderRadius.circular(4.r),
                                     gradient: hasData
                                         ? const LinearGradient(

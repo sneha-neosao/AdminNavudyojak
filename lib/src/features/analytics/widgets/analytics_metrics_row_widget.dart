@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../remote/models/analytics_model/business_performance_response.dart';
-import '../../widgets/app_snackbar_widget.dart';
 
 class AnalyticsMetricData {
   final String value;
@@ -25,11 +25,13 @@ class AnalyticsMetricData {
 class AnalyticsMetricsRowWidget extends StatelessWidget {
   final SummaryCardsData? summaryCards;
   final bool isLoading;
+  final ValueChanged<AnalyticsMetricData>? onItemTap;
 
   const AnalyticsMetricsRowWidget({
     super.key,
     this.summaryCards,
     this.isLoading = false,
+    this.onItemTap,
   });
 
   List<AnalyticsMetricData> _buildMetrics() {
@@ -131,25 +133,14 @@ class AnalyticsMetricsRowWidget extends StatelessWidget {
       borderRadius: BorderRadius.circular(16.r),
       child: InkWell(
         borderRadius: BorderRadius.circular(16.r),
-        onTap: isLoading
-            ? null
-            : () {
-                AppSnackBarWidget.show(
-                  context,
-                  message: '${item.label}: ${item.value} selected',
-                  type: ToastType.info,
-                );
-              },
+        onTap: isLoading || onItemTap == null ? null : () => onItemTap!(item),
         splashColor: AppColor.orangeTint2.withValues(alpha: 0.5),
         highlightColor: AppColor.orangeTint2.withValues(alpha: 0.3),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: AppColor.metricCardBorder,
-              width: 1.2,
-            ),
+            border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
             boxShadow: [
               BoxShadow(
                 color: AppColor.black.withValues(alpha: 0.02),

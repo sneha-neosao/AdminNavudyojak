@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../profile/bloc/profile_details_bloc/profile_details_bloc.dart';
-import '../../widgets/app_snackbar_widget.dart';
 import 'account_confirmation_dialog.dart';
 import 'change_password_bottom_sheet_widget.dart';
 import 'logout_confirmation_dialog.dart';
@@ -48,13 +47,7 @@ class AccountActionsCardWidget extends StatelessWidget {
       iconColor: AppColor.brightRed,
       iconBgColor: AppColor.brightRed.withValues(alpha: 0.1),
       confirmBtnColor: AppColor.brightRed,
-      onConfirm: () {
-        AppSnackBarWidget.show(
-          context,
-          message: 'Account deletion request submitted',
-          type: ToastType.warning,
-        );
-      },
+      onConfirm: () {},
     );
   }
 

@@ -7,7 +7,6 @@ import '../../../core/theme/app_color.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../routes/app_route_path.dart';
-import '../../widgets/app_snackbar_widget.dart';
 import 'return_settlement_item.dart';
 
 class ReturnSettlementCardWidget extends StatelessWidget {
@@ -214,17 +213,7 @@ class ReturnSettlementCardWidget extends StatelessWidget {
       borderRadius: BorderRadius.circular(14.r),
       child: InkWell(
         borderRadius: BorderRadius.circular(14.r),
-        onTap: () {
-          if (onItemTap != null) {
-            onItemTap!(item);
-          } else {
-            AppSnackBarWidget.show(
-              context,
-              message: '${item.name} (${item.code}) review selected',
-              type: ToastType.info,
-            );
-          }
-        },
+        onTap: onItemTap != null ? () => onItemTap!(item) : null,
         splashColor: AppColor.orangeTint2.withValues(alpha: 0.5),
         highlightColor: AppColor.orangeTint2.withValues(alpha: 0.3),
         child: Container(

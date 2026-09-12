@@ -2,10 +2,7 @@ class ApiUrl {
   const ApiUrl._();
 
   // static const baseUrl = "https://myvegizapis.neosao.co.in/api/v1/delivery_boy"; // LIVE
-  static const baseUrl = "http://192.168.1.13:8000/api"; // LOCAL / TEST
-
-  // static const socketUrl = "http://172.20.10.2:8001"; // Socket
-  static const socketUrl = "http://192.168.1.13:8000"; // Socket
+  static const baseUrl = "http://192.168.1.6:8000/api"; // LOCAL / TEST
 
   static const login = "/auth/login";
 

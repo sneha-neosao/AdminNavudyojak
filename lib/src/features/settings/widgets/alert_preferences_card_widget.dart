@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
-import '../../widgets/app_snackbar_widget.dart';
 import 'setting_item_data.dart';
 
 class AlertPreferencesCardWidget extends StatelessWidget {
@@ -36,10 +36,7 @@ class AlertPreferencesCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.pureWhite,
         borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(
-          color: AppColor.metricCardBorder,
-          width: 1.2,
-        ),
+        border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: AppColor.black.withValues(alpha: 0.03),
@@ -101,27 +98,14 @@ class AlertPreferencesCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.pureWhite,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppColor.metricCardBorder,
-          width: 1.1,
-        ),
+        border: Border.all(color: AppColor.metricCardBorder, width: 1.1),
       ),
       child: Material(
         color: AppColor.transparent,
         borderRadius: BorderRadius.circular(16.r),
         child: InkWell(
           borderRadius: BorderRadius.circular(16.r),
-          onTap: () {
-            if (item.onTap != null) {
-              item.onTap!();
-            } else {
-              AppSnackBarWidget.show(
-                context,
-                message: '${item.title} selected',
-                type: ToastType.info,
-              );
-            }
-          },
+          onTap: item.onTap,
           splashColor: AppColor.orangeTint2.withValues(alpha: 0.5),
           highlightColor: AppColor.orangeTint2.withValues(alpha: 0.3),
           child: Padding(
@@ -129,11 +113,7 @@ class AlertPreferencesCardWidget extends StatelessWidget {
             child: Row(
               children: [
                 // Leading Icon in Orange
-                Icon(
-                  item.icon,
-                  size: 22.sp,
-                  color: AppColor.cockpitOrange,
-                ),
+                Icon(item.icon, size: 22.sp, color: AppColor.cockpitOrange),
                 14.wS,
 
                 // Title & Subtitle

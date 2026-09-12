@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../remote/models/analytics_model/business_performance_response.dart';
-import '../../widgets/app_snackbar_widget.dart';
 
 class OwnerScorecardCardWidget extends StatelessWidget {
   final List<OwnerScorecardItem>? items;
@@ -52,8 +52,9 @@ class OwnerScorecardCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final displayItems =
-        (items != null && items!.isNotEmpty) ? items! : _defaultItems;
+    final displayItems = (items != null && items!.isNotEmpty)
+        ? items!
+        : _defaultItems;
 
     return Skeletonizer(
       enabled: isLoading,
@@ -63,10 +64,7 @@ class OwnerScorecardCardWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColor.card,
           borderRadius: BorderRadius.circular(22.r),
-          border: Border.all(
-            color: AppColor.metricCardBorder,
-            width: 1.2,
-          ),
+          border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
           boxShadow: [
             BoxShadow(
               color: AppColor.black.withValues(alpha: 0.03),
@@ -118,20 +116,9 @@ class OwnerScorecardCardWidget extends StatelessWidget {
                     color: AppColor.transparent,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(8.r),
-                      onTap: isLoading
+                      onTap: isLoading || onItemTap == null
                           ? null
-                          : () {
-                              if (onItemTap != null) {
-                                onItemTap!(item);
-                              } else {
-                                AppSnackBarWidget.show(
-                                  context,
-                                  message:
-                                      '${item.title}: ${item.displayValue} (${item.status})',
-                                  type: ToastType.info,
-                                );
-                              }
-                            },
+                          : () => onItemTap!(item),
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 14.h),
                         child: Row(
@@ -191,10 +178,7 @@ class OwnerScorecardCardWidget extends StatelessWidget {
     } else {
       bgColor = AppColor.transparent;
       textColor = AppColor.black;
-      border = Border.all(
-        color: AppColor.metricCardBorder,
-        width: 1.2,
-      );
+      border = Border.all(color: AppColor.metricCardBorder, width: 1.2);
     }
 
     return Container(

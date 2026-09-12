@@ -7,7 +7,6 @@ import '../../../core/theme/app_color.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../routes/app_route_path.dart';
-import '../../widgets/app_snackbar_widget.dart';
 import 'new_customer_item.dart';
 
 class NewCustomersCardWidget extends StatelessWidget {
@@ -197,17 +196,7 @@ class NewCustomersCardWidget extends StatelessWidget {
       borderRadius: BorderRadius.circular(14.r),
       child: InkWell(
         borderRadius: BorderRadius.circular(14.r),
-        onTap: () {
-          if (onItemTap != null) {
-            onItemTap!(item);
-          } else {
-            AppSnackBarWidget.show(
-              context,
-              message: '${item.name} selected',
-              type: ToastType.info,
-            );
-          }
-        },
+        onTap: onItemTap != null ? () => onItemTap!(item) : null,
         splashColor: AppColor.orangeTint2.withValues(alpha: 0.5),
         highlightColor: AppColor.orangeTint2.withValues(alpha: 0.3),
         child: Container(

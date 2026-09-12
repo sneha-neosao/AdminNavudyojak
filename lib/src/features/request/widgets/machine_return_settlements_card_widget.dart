@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
-import '../../widgets/app_snackbar_widget.dart';
 import 'request_item_data.dart';
 
 class MachineReturnSettlementsCardWidget extends StatelessWidget {
@@ -54,10 +54,7 @@ class MachineReturnSettlementsCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.card,
         borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(
-          color: AppColor.metricCardBorder,
-          width: 1.2,
-        ),
+        border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: AppColor.black.withValues(alpha: 0.03),
@@ -132,10 +129,7 @@ class MachineReturnSettlementsCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.card,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppColor.metricCardBorder,
-          width: 1.2,
-        ),
+        border: Border.all(color: AppColor.metricCardBorder, width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,8 +187,9 @@ class MachineReturnSettlementsCardWidget extends StatelessWidget {
                   item.badgeText,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: item.isApproved ? AppColor.white : AppColor.black,
-                    fontWeight:
-                        item.isApproved ? FontWeight.w700 : FontWeight.w600,
+                    fontWeight: item.isApproved
+                        ? FontWeight.w700
+                        : FontWeight.w600,
                     fontSize: 11.5.sp,
                   ),
                   softWrap: true,
@@ -261,17 +256,7 @@ class MachineReturnSettlementsCardWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10.r),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10.r),
-                    onTap: () {
-                      if (onEditTap != null) {
-                        onEditTap!(item);
-                      } else {
-                        AppSnackBarWidget.show(
-                          context,
-                          message: 'Edit value for ${item.name}',
-                          type: ToastType.info,
-                        );
-                      }
-                    },
+                    onTap: onEditTap != null ? () => onEditTap!(item) : null,
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 10.h),
                       decoration: BoxDecoration(
@@ -305,17 +290,9 @@ class MachineReturnSettlementsCardWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10.r),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10.r),
-                    onTap: () {
-                      if (onConfirmTap != null) {
-                        onConfirmTap!(item);
-                      } else {
-                        AppSnackBarWidget.show(
-                          context,
-                          message: 'Approved settlement for ${item.name}',
-                          type: ToastType.success,
-                        );
-                      }
-                    },
+                    onTap: onConfirmTap != null
+                        ? () => onConfirmTap!(item)
+                        : null,
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 10.h),
                       decoration: BoxDecoration(

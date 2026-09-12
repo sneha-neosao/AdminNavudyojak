@@ -1,9 +1,10 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
-import '../../widgets/app_snackbar_widget.dart';
 import 'notification_item.dart';
 
 class NotificationListCardWidget extends StatelessWidget {
@@ -78,24 +79,14 @@ class NotificationListCardWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(16.r),
               child: InkWell(
                 borderRadius: BorderRadius.circular(16.r),
-                onTap: isLoading
-                    ? null
-                    : () {
-                        if (onTap != null) {
-                          onTap!();
-                        } else {
-                          AppSnackBarWidget.show(
-                            context,
-                            message: item.title,
-                            type: ToastType.info,
-                          );
-                        }
-                      },
+                onTap: isLoading ? null : onTap,
                 splashColor: AppColor.orangeTint2.withValues(alpha: 0.5),
                 highlightColor: AppColor.orangeTint2.withValues(alpha: 0.3),
                 child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 14.h,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -108,11 +99,7 @@ class NotificationListCardWidget extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Center(
-                          child: Icon(
-                            item.icon,
-                            size: 20.sp,
-                            color: iconColor,
-                          ),
+                          child: Icon(item.icon, size: 20.sp, color: iconColor),
                         ),
                       ),
                       12.wS,

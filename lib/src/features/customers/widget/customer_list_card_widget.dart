@@ -2,9 +2,9 @@ import 'package:admin_navudyojak/src/features/customers/widget/customer_detail_i
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+
 import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
-import '../../widgets/app_snackbar_widget.dart';
 
 class CustomerListCardWidget extends StatelessWidget {
   final List<CustomerDetailItem> items;
@@ -38,9 +38,7 @@ class CustomerListCardWidget extends StatelessWidget {
           children: List.generate(
             10,
             (index) => Padding(
-              padding: EdgeInsets.only(
-                bottom: index == 9 ? 0 : 12.h,
-              ),
+              padding: EdgeInsets.only(bottom: index == 9 ? 0 : 12.h),
               child: _buildCustomerItemCard(
                 context,
                 const CustomerDetailItem(
@@ -66,10 +64,7 @@ class CustomerListCardWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColor.pureWhite,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: AppColor.metricCardBorder,
-            width: 1.1,
-          ),
+          border: Border.all(color: AppColor.metricCardBorder, width: 1.1),
           boxShadow: [
             BoxShadow(
               color: AppColor.black.withValues(alpha: 0.02),
@@ -122,10 +117,7 @@ class CustomerListCardWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColor.pureWhite,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: AppColor.metricCardBorder,
-            width: 1.1,
-          ),
+          border: Border.all(color: AppColor.metricCardBorder, width: 1.1),
           boxShadow: [
             BoxShadow(
               color: AppColor.black.withValues(alpha: 0.02),
@@ -200,10 +192,7 @@ class CustomerListCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.pureWhite,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppColor.metricCardBorder,
-          width: 1.1,
-        ),
+        border: Border.all(color: AppColor.metricCardBorder, width: 1.1),
         boxShadow: [
           BoxShadow(
             color: AppColor.black.withValues(alpha: 0.02),
@@ -217,17 +206,7 @@ class CustomerListCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         child: InkWell(
           borderRadius: BorderRadius.circular(16.r),
-          onTap: () {
-            if (onItemTap != null) {
-              onItemTap!(item);
-            } else {
-              AppSnackBarWidget.show(
-                context,
-                message: '${item.name} (${item.code}) selected',
-                type: ToastType.info,
-              );
-            }
-          },
+          onTap: onItemTap != null ? () => onItemTap!(item) : null,
           splashColor: AppColor.orangeTint2.withValues(alpha: 0.5),
           highlightColor: AppColor.orangeTint2.withValues(alpha: 0.3),
           child: Padding(
