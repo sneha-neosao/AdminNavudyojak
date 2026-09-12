@@ -9,7 +9,8 @@ enum AppRoute {
   requests(path: "/requests"),
   settings(path: "/settings"),
   notifications(path: "/notifications"),
-  maintenance(path: "/maintenance");
+  maintenance(path: "/maintenance"),
+  resetPassword(path: "/reset-password");
 
   final String path;
 

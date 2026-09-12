@@ -6,6 +6,7 @@ import '../features/customers/presentation/pages/customer_onboarding_details_scr
 import '../features/customers/presentation/pages/customers_page.dart';
 import '../features/home/presentation/pages/home_page.dart';
 import '../features/login/presentation/pages/login_screen.dart';
+import '../features/login/presentation/pages/reset_password_screen.dart';
 import '../features/main_screen/presentation/pages/main_screen.dart';
 import '../features/notifications/presentation/pages/notifications_screen.dart';
 import '../features/request/presentation/pages/request_page.dart';
@@ -33,6 +34,11 @@ class AppRouteConf {
         path: AppRoute.login.path,
         name: AppRoute.login.name,
         pageBuilder: (context, state) => _fadePage(const LoginScreen()),
+      ),
+      GoRoute(
+        path: AppRoute.resetPassword.path,
+        name: AppRoute.resetPassword.name,
+        pageBuilder: (context, state) => _fadePage(const ResetPasswordScreen()),
       ),
       GoRoute(
         path: '/',
