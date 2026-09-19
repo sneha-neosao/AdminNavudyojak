@@ -889,6 +889,11 @@ class AuthRepositoryImpl implements Repository {
             limit: params.limit,
             status: params.status,
             search: params.search,
+            dateFrom: params.dateFrom,
+            dateTo: params.dateTo,
+            isDashboard: params.isDashboard,
+            ordering: params.ordering,
+            refundType: params.refundType,
           );
 
           if (respData.success == false) {

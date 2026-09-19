@@ -167,6 +167,11 @@ abstract class RemoteDataSource {
     int? limit,
     String? status,
     String? search,
+    String? dateFrom,
+    String? dateTo,
+    String? isDashboard,
+    String? ordering,
+    String? refundType,
   });
   // ignore: non_constant_identifier_names
   Future<RefundsResponse> refunds_list({
@@ -174,6 +179,11 @@ abstract class RemoteDataSource {
     int? limit,
     String? status,
     String? search,
+    String? dateFrom,
+    String? dateTo,
+    String? isDashboard,
+    String? ordering,
+    String? refundType,
   });
 }
 
@@ -866,12 +876,22 @@ class RemoteDataSourceImpl implements RemoteDataSource {
     int? limit,
     String? status,
     String? search,
+    String? dateFrom,
+    String? dateTo,
+    String? isDashboard,
+    String? ordering,
+    String? refundType,
   }) async {
     return refunds_list(
       page: page,
       limit: limit,
       status: status,
       search: search,
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      isDashboard: isDashboard,
+      ordering: ordering,
+      refundType: refundType,
     );
   }
 
@@ -882,6 +902,11 @@ class RemoteDataSourceImpl implements RemoteDataSource {
     int? limit,
     String? status,
     String? search,
+    String? dateFrom,
+    String? dateTo,
+    String? isDashboard,
+    String? ordering,
+    String? refundType,
   }) async {
     try {
       String url = ApiUrl.refunds;
@@ -893,6 +918,21 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       }
       if (search != null && search.trim().isNotEmpty) {
         queryParams['search'] = search.trim();
+      }
+      if (dateFrom != null && dateFrom.trim().isNotEmpty) {
+        queryParams['date_from'] = dateFrom.trim();
+      }
+      if (dateTo != null && dateTo.trim().isNotEmpty) {
+        queryParams['date_to'] = dateTo.trim();
+      }
+      if (isDashboard != null && isDashboard.trim().isNotEmpty) {
+        queryParams['is_dashboard'] = isDashboard.trim();
+      }
+      if (ordering != null && ordering.trim().isNotEmpty) {
+        queryParams['ordering'] = ordering.trim();
+      }
+      if (refundType != null && refundType.trim().isNotEmpty) {
+        queryParams['refund_type'] = refundType.trim();
       }
 
       if (queryParams.isNotEmpty) {

@@ -14,6 +14,11 @@ class RefundsBloc extends Bloc<RefundsEvent, RefundsState> {
   static const int _limit = 10;
   String? _currentStatus;
   String? _currentSearch;
+  String? _currentDateFrom;
+  String? _currentDateTo;
+  String? _currentIsDashboard;
+  String? _currentOrdering;
+  String? _currentRefundType;
 
   RefundsBloc(this._refundsUseCase) : super(RefundsInitialState()) {
     on<GetRefundsEvent>(_getRefunds);
@@ -29,6 +34,11 @@ class RefundsBloc extends Bloc<RefundsEvent, RefundsState> {
     _currentPage = event.page;
     _currentStatus = event.status;
     _currentSearch = event.search;
+    _currentDateFrom = event.dateFrom;
+    _currentDateTo = event.dateTo;
+    _currentIsDashboard = event.isDashboard;
+    _currentOrdering = event.ordering;
+    _currentRefundType = event.refundType;
 
     emit(RefundsLoadingState());
 
@@ -38,6 +48,11 @@ class RefundsBloc extends Bloc<RefundsEvent, RefundsState> {
         limit: event.limit,
         status: _currentStatus,
         search: _currentSearch,
+        dateFrom: _currentDateFrom,
+        dateTo: _currentDateTo,
+        isDashboard: _currentIsDashboard,
+        ordering: _currentOrdering,
+        refundType: _currentRefundType,
       ),
     );
 
@@ -84,6 +99,11 @@ class RefundsBloc extends Bloc<RefundsEvent, RefundsState> {
         limit: _limit,
         status: _currentStatus,
         search: _currentSearch,
+        dateFrom: _currentDateFrom,
+        dateTo: _currentDateTo,
+        isDashboard: _currentIsDashboard,
+        ordering: _currentOrdering,
+        refundType: _currentRefundType,
       ),
     );
 
@@ -102,7 +122,8 @@ class RefundsBloc extends Bloc<RefundsEvent, RefundsState> {
             combined.length;
         final totalPages = data.data?.pagination?.totalPages ??
             (totalCount > 0 ? (totalCount / _limit).ceil() : nextPage);
-        final hasReachedMax = _currentPage >= totalPages || newItems.isEmpty;
+        final hasReachedMax =
+            _currentPage >= totalPages || newItems.isEmpty || newItems.length < _limit;
 
         emit(currentSuccess.copyWith(
           data: data,
@@ -126,6 +147,11 @@ class RefundsBloc extends Bloc<RefundsEvent, RefundsState> {
         limit: _limit,
         status: _currentStatus,
         search: _currentSearch,
+        dateFrom: _currentDateFrom,
+        dateTo: _currentDateTo,
+        isDashboard: _currentIsDashboard,
+        ordering: _currentOrdering,
+        refundType: _currentRefundType,
       ),
     );
 
@@ -162,6 +188,11 @@ class RefundsBloc extends Bloc<RefundsEvent, RefundsState> {
       limit: _limit,
       status: event.status,
       search: _currentSearch,
+      dateFrom: _currentDateFrom,
+      dateTo: _currentDateTo,
+      isDashboard: _currentIsDashboard,
+      ordering: _currentOrdering,
+      refundType: _currentRefundType,
     ));
   }
 

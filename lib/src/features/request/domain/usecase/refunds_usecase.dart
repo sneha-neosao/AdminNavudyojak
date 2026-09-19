@@ -10,16 +10,36 @@ class RefundsParams extends Equatable {
   final int limit;
   final String? status;
   final String? search;
+  final String? dateFrom;
+  final String? dateTo;
+  final String? isDashboard;
+  final String? ordering;
+  final String? refundType;
 
   const RefundsParams({
     this.page = 1,
     this.limit = 10,
     this.status,
     this.search,
+    this.dateFrom,
+    this.dateTo,
+    this.isDashboard,
+    this.ordering,
+    this.refundType,
   });
 
   @override
-  List<Object?> get props => [page, limit, status, search];
+  List<Object?> get props => [
+        page,
+        limit,
+        status,
+        search,
+        dateFrom,
+        dateTo,
+        isDashboard,
+        ordering,
+        refundType,
+      ];
 }
 
 class RefundsUseCase implements UseCase<RefundsResponse, RefundsParams> {

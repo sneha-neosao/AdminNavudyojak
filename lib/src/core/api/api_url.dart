@@ -87,12 +87,32 @@ class ApiUrl {
     int? limit,
     String? status,
     String? search,
+    String? dateFrom,
+    String? dateTo,
+    String? isDashboard,
+    String? ordering,
+    String? refundType,
   }) {
     final queryParams = <String>[];
     if (page != null) queryParams.add("page=$page");
     if (limit != null) queryParams.add("limit=$limit");
     if (status != null && status.isNotEmpty) queryParams.add("status=$status");
     if (search != null && search.isNotEmpty) queryParams.add("search=$search");
+    if (dateFrom != null && dateFrom.isNotEmpty) {
+      queryParams.add("date_from=$dateFrom");
+    }
+    if (dateTo != null && dateTo.isNotEmpty) {
+      queryParams.add("date_to=$dateTo");
+    }
+    if (isDashboard != null && isDashboard.isNotEmpty) {
+      queryParams.add("is_dashboard=$isDashboard");
+    }
+    if (ordering != null && ordering.isNotEmpty) {
+      queryParams.add("ordering=$ordering");
+    }
+    if (refundType != null && refundType.isNotEmpty) {
+      queryParams.add("refund_type=$refundType");
+    }
     if (queryParams.isEmpty) return refunds;
     return "$refunds?${queryParams.join('&')}";
   }
