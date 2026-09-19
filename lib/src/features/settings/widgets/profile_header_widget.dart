@@ -17,6 +17,7 @@ class ProfileHeaderWidget extends StatelessWidget {
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
       return trimmed;
     }
+    return '${ApiUrl.baseUrl}$trimmed';
   }
 
   @override

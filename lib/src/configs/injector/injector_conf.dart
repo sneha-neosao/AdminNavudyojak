@@ -195,4 +195,13 @@ void configureDepedencies() {
   getIt.registerFactory<ChangePasswordBloc>(
     () => ChangePasswordBloc(getIt<ChangePasswordUseCase>()),
   );
+
+  /// Refunds / Return Requests registered per Rule 4
+  getIt.registerLazySingleton<RefundsUseCase>(
+    () => RefundsUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<RefundsBloc>(
+    () => RefundsBloc(getIt<RefundsUseCase>()),
+  );
 }

@@ -1,4 +1,4 @@
-import 'package:admin_navudyojak/src/features/settings/widgets/alert_preferences_card_widget.dart';
+// import 'package:admin_navudyojak/src/features/settings/widgets/alert_preferences_card_widget.dart';
 import 'package:admin_navudyojak/src/features/settings/widgets/profile_header_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../core/extensions/integer_sizedbox_extension.dart';
@@ -17,8 +17,8 @@ class SettingsContentWidget extends StatelessWidget {
           8.hS,
           const ProfileHeaderWidget(),
           16.hS,
-          const AlertPreferencesCardWidget(),
-          16.hS,
+          // const AlertPreferencesCardWidget(),
+          // 16.hS,
           const AccountActionsCardWidget(),
           24.hS,
         ],

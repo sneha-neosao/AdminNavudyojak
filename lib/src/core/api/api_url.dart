@@ -80,4 +80,20 @@ class ApiUrl {
   }
 
   static const deleteAccount = "/auth/delete";
+
+  static const refunds = "/admin-app/refunds";
+  static String refundsUrl({
+    int? page,
+    int? limit,
+    String? status,
+    String? search,
+  }) {
+    final queryParams = <String>[];
+    if (page != null) queryParams.add("page=$page");
+    if (limit != null) queryParams.add("limit=$limit");
+    if (status != null && status.isNotEmpty) queryParams.add("status=$status");
+    if (search != null && search.isNotEmpty) queryParams.add("search=$search");
+    if (queryParams.isEmpty) return refunds;
+    return "$refunds?${queryParams.join('&')}";
+  }
 }

@@ -28,6 +28,7 @@ import '../../features/login/domain/usecase/forgot_password_usecase.dart';
 import '../../features/login/domain/usecase/verify_reset_token_usecase.dart';
 import '../../features/login/domain/usecase/reset_password_usecase.dart';
 import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
+import '../models/request_model/refunds_response.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
@@ -158,6 +159,22 @@ abstract class RemoteDataSource {
   Future<UpdateFcmTokenResponse> UpdateFcmToken(UpdateFcmTokenParams params);
   // ignore: non_constant_identifier_names
   Future<UpdateFcmTokenResponse> update_fcm_token(UpdateFcmTokenParams params);
+
+  /// Refunds / Return Requests
+  // ignore: non_constant_identifier_names
+  Future<RefundsResponse> RefundsList({
+    int? page,
+    int? limit,
+    String? status,
+    String? search,
+  });
+  // ignore: non_constant_identifier_names
+  Future<RefundsResponse> refunds_list({
+    int? page,
+    int? limit,
+    String? status,
+    String? search,
+  });
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -841,4 +858,67 @@ class RemoteDataSourceImpl implements RemoteDataSource {
     password: password,
     passwordConfirm: passwordConfirm,
   );
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<RefundsResponse> RefundsList({
+    int? page,
+    int? limit,
+    String? status,
+    String? search,
+  }) async {
+    return refunds_list(
+      page: page,
+      limit: limit,
+      status: status,
+      search: search,
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<RefundsResponse> refunds_list({
+    int? page,
+    int? limit,
+    String? status,
+    String? search,
+  }) async {
+    try {
+      String url = ApiUrl.refunds;
+      final queryParams = <String, String>{};
+      if (page != null) queryParams['page'] = page.toString();
+      if (limit != null) queryParams['limit'] = limit.toString();
+      if (status != null && status.trim().isNotEmpty) {
+        queryParams['status'] = status.trim();
+      }
+      if (search != null && search.trim().isNotEmpty) {
+        queryParams['search'] = search.trim();
+      }
+
+      if (queryParams.isNotEmpty) {
+        final query = Uri(queryParameters: queryParams).query;
+        url = '$url?$query';
+      }
+
+      final response = await _helper.execute(
+        method: Method.get,
+        url: url,
+        options: Options(headers: {'accept': 'application/json'}),
+      );
+
+      final respData = RefundsResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
 }
