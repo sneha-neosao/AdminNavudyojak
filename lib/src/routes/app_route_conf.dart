@@ -38,7 +38,14 @@ class AppRouteConf {
       GoRoute(
         path: AppRoute.resetPassword.path,
         name: AppRoute.resetPassword.name,
-        pageBuilder: (context, state) => _fadePage(const ResetPasswordScreen()),
+        pageBuilder: (context, state) {
+          final token = state.uri.queryParameters['token'];
+          return _fadePage(
+            ResetPasswordScreen(
+              token: token,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: '/',

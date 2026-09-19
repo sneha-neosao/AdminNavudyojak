@@ -74,6 +74,14 @@ void configureDepedencies() {
     () => ForgotPasswordUseCase(getIt<Repository>()),
   );
 
+  getIt.registerLazySingleton<VerifyResetTokenUseCase>(
+    () => VerifyResetTokenUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerLazySingleton<ResetPasswordUseCase>(
+    () => ResetPasswordUseCase(getIt<Repository>()),
+  );
+
   /// Auth & Login BLoCs registered per Rule 4
   getIt.registerFactory<AuthLoginBloc>(
     () => AuthLoginBloc(getIt<AuthLoginUseCase>(), getIt<LogoutUseCase>()),
@@ -85,6 +93,16 @@ void configureDepedencies() {
 
   getIt.registerFactory<ForgotPasswordBloc>(
     () => ForgotPasswordBloc(getIt<ForgotPasswordUseCase>()),
+  );
+
+  getIt.registerFactory<VerifyResetTokenBloc>(
+    () => VerifyResetTokenBloc(getIt<VerifyResetTokenUseCase>()),
+  );
+
+  getIt.registerFactory<ResetPasswordFormBloc>(() => ResetPasswordFormBloc());
+
+  getIt.registerFactory<ResetPasswordBloc>(
+    () => ResetPasswordBloc(getIt<ResetPasswordUseCase>()),
   );
 
   /// Customers BLoC registered per Rule 4

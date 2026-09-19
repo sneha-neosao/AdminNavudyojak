@@ -23,10 +23,14 @@ import '../models/notifications_model/mark_notification_read_response.dart';
 import '../models/analytics_model/business_performance_response.dart';
 import '../models/dashboard_model/admin_dashboard_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
+import '../models/auth_model/verify_reset_token_response.dart';
+import '../models/auth_model/reset_password_response.dart';
 import '../../features/customers/domain/usecase/customers_usecase.dart';
 import '../../features/app_version/domain/usecase/app_version_usecase.dart';
 import '../../features/notifications/domain/usecase/notifications_usecase.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
+import '../../features/login/domain/usecase/verify_reset_token_usecase.dart';
+import '../../features/login/domain/usecase/reset_password_usecase.dart';
 import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
 import '../../features/home/domain/usecase/admin_dashboard_usecase.dart';
 import '../models/auth_model/change_password_response.dart';
@@ -40,6 +44,14 @@ abstract class Repository {
   // ignore: non_constant_identifier_names
   Future<Either<Failure, ForgotPasswordResponse>> forgot_password(
     ForgotPasswordParams params,
+  );
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, VerifyResetTokenResponse>> verify_reset_token(
+    VerifyResetTokenParams params,
+  );
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, ResetPasswordResponse>> reset_password(
+    ResetPasswordParams params,
   );
 
   /// Customers
@@ -445,6 +457,90 @@ class AuthRepositoryImpl implements Repository {
                 respData.message?.isNotEmpty == true
                     ? respData.message!
                     : "Failed to send reset link",
+              ),
+            );
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, VerifyResetTokenResponse>> verify_reset_token(
+    VerifyResetTokenParams params,
+  ) async {
+    return _networkInfo.check(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.verify_reset_token(params);
+
+          if (respData.success == false) {
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Invalid or expired reset token",
+              ),
+            );
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, ResetPasswordResponse>> reset_password(
+    ResetPasswordParams params,
+  ) async {
+    return _networkInfo.check(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.reset_password(params);
+
+          if (respData.success == false) {
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to reset password",
               ),
             );
           }

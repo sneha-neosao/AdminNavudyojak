@@ -1,8 +1,8 @@
 class ApiUrl {
   const ApiUrl._();
 
-  // static const baseUrl = "https://myvegizapis.neosao.co.in/api/v1/delivery_boy"; // LIVE
-  static const baseUrl = "http://192.168.1.6:8000/api"; // LOCAL / TEST
+  static const baseUrl = "https://mnkbackend.neosao.co.in/api"; // LIVE
+  // static const baseUrl = "http://192.168.1.6:8000/api"; // LOCAL
 
   static const login = "/auth/login";
 
@@ -34,6 +34,8 @@ class ApiUrl {
   static const profile = "/auth/profile";
   static const authProfile = "/auth/profile";
   static const forgotPassword = "/auth/forgot-password";
+  static const verifyResetToken = "/auth/verify-reset-token";
+  static const resetPassword = "/auth/reset-password";
 
   static const onlineStatus = "/auth/toggle-online";
 

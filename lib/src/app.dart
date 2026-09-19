@@ -10,6 +10,7 @@ import 'core/constants/list_translation_locale.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/global_keys.dart';
+import 'routes/app_route_path.dart';
 
 /// Root widget for the app. Handles initialization and routing.
 class MyApp extends StatefulWidget {
@@ -32,9 +33,48 @@ class _MyAppState extends State<MyApp> {
     _deepLinkService = getIt<DeepLinkService>();
     _deepLinkService.initListener((uri) {
       debugPrint("🔗 Received DeepLink URI: $uri");
+      _handleDeepLink(uri);
     });
     _deepLinkService.checkInitialUri((uri) {
       debugPrint("🔗 Initial DeepLink URI: $uri");
+      _handleDeepLink(uri);
+    });
+  }
+
+  /// Handles incoming deep links from external apps (e.g. Gmail email clicks)
+  void _handleDeepLink(Uri uri) {
+    debugPrint("🔗 Processing DeepLink URI: $uri (host: ${uri.host}, path: ${uri.path})");
+
+    switch (uri.host) {
+      case "reset-password":
+        _navigateToResetPassword(uri);
+        break;
+
+      default:
+        // Also check if path contains 'reset-password' in case the incoming URI is an HTTP/HTTPS link (e.g., https://<domain>/reset-password?token=...)
+        if (uri.path.contains("reset-password") ||
+            uri.pathSegments.contains("reset-password")) {
+          _navigateToResetPassword(uri);
+        } else {
+          debugPrint("⚠️ Unhandled deep link host: ${uri.host}");
+        }
+        break;
+    }
+  }
+
+  /// Navigates to reset password screen with token and company_code parameters
+  void _navigateToResetPassword(Uri uri) {
+    final token = uri.queryParameters['token'];
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _router.goNamed(
+          AppRoute.resetPassword.name,
+          queryParameters: {
+            'token': token ?? '',
+          },
+        );
+      }
     });
   }
 

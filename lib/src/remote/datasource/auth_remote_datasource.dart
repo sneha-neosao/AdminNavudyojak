@@ -21,8 +21,12 @@ import '../models/notifications_model/mark_notification_read_response.dart';
 import '../models/analytics_model/business_performance_response.dart';
 import '../models/dashboard_model/admin_dashboard_response.dart';
 import '../models/auth_model/forgot_password_response.dart';
+import '../models/auth_model/verify_reset_token_response.dart';
+import '../models/auth_model/reset_password_response.dart';
 import '../models/auth_model/change_password_response.dart';
 import '../../features/login/domain/usecase/forgot_password_usecase.dart';
+import '../../features/login/domain/usecase/verify_reset_token_usecase.dart';
+import '../../features/login/domain/usecase/reset_password_usecase.dart';
 import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
 
 abstract class RemoteDataSource {
@@ -39,6 +43,24 @@ abstract class RemoteDataSource {
   Future<ForgotPasswordResponse> ForgotPassword(ForgotPasswordParams params);
   // ignore: non_constant_identifier_names
   Future<ForgotPasswordResponse> forgot_password(ForgotPasswordParams params);
+
+  // ignore: non_constant_identifier_names
+  Future<VerifyResetTokenResponse> VerifyResetToken(
+    VerifyResetTokenParams params,
+  );
+  // ignore: non_constant_identifier_names
+  Future<VerifyResetTokenResponse> verify_reset_token(
+    VerifyResetTokenParams params,
+  );
+
+  // ignore: non_constant_identifier_names
+  Future<ResetPasswordResponse> ResetPassword(
+    ResetPasswordParams params,
+  );
+  // ignore: non_constant_identifier_names
+  Future<ResetPasswordResponse> reset_password(
+    ResetPasswordParams params,
+  );
 
   /// Customers
   // ignore: non_constant_identifier_names
@@ -468,6 +490,90 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = ForgotPasswordResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<VerifyResetTokenResponse> VerifyResetToken(
+    VerifyResetTokenParams params,
+  ) async {
+    return verify_reset_token(params);
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<VerifyResetTokenResponse> verify_reset_token(
+    VerifyResetTokenParams params,
+  ) async {
+    try {
+      final response = await _helper.execute(
+        method: Method.post,
+        url: ApiUrl.verifyResetToken,
+        data: params.toJson(),
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final respData = VerifyResetTokenResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ResetPasswordResponse> ResetPassword(
+    ResetPasswordParams params,
+  ) async {
+    return reset_password(params);
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ResetPasswordResponse> reset_password(
+    ResetPasswordParams params,
+  ) async {
+    try {
+      final response = await _helper.execute(
+        method: Method.post,
+        url: ApiUrl.resetPassword,
+        data: params.toJson(),
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final respData = ResetPasswordResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

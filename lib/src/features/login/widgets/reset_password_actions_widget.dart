@@ -7,11 +7,13 @@ import 'package:admin_navudyojak/src/core/theme/app_color.dart';
 class ResetPasswordActionsWidget extends StatelessWidget {
   final VoidCallback? onResetPassword;
   final VoidCallback? onBackToLogin;
+  final bool isLoading;
 
   const ResetPasswordActionsWidget({
     super.key,
     this.onResetPassword,
     this.onBackToLogin,
+    this.isLoading = false,
   });
 
   @override
@@ -24,25 +26,36 @@ class ResetPasswordActionsWidget extends StatelessWidget {
           width: double.infinity,
           height: 50.h,
           child: ElevatedButton(
-            onPressed: onResetPassword,
+            onPressed: isLoading ? null : onResetPassword,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColor.primary,
               foregroundColor: AppColor.pureWhite,
+              disabledBackgroundColor: AppColor.primary.withValues(alpha: 0.65),
               elevation: 1.5,
               shadowColor: AppColor.primary.withValues(alpha: 0.35),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16.r),
               ),
             ),
-            child: Text(
-              'Reset Password',
-              style: TextStyle(
-                fontSize: 15.5.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColor.pureWhite,
-                letterSpacing: 0.2,
-              ),
-            ),
+            child: isLoading
+                ? SizedBox(
+                    height: 22.h,
+                    width: 22.h,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppColor.pureWhite),
+                    ),
+                  )
+                : Text(
+                    'Reset Password',
+                    style: TextStyle(
+                      fontSize: 15.5.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColor.pureWhite,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
           ),
         ),
         28.hS,
