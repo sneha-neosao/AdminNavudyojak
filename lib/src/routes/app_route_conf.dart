@@ -12,6 +12,8 @@ import '../features/notifications/presentation/pages/notifications_screen.dart';
 import '../features/request/presentation/pages/request_page.dart';
 import '../features/settings/presentation/pages/settings_page.dart';
 import '../features/splash/presentation/pages/splash_screen.dart';
+import '../features/bookings/presentation/pages/pending_advance_bookings_page.dart';
+import '../features/bookings/presentation/pages/pending_advance_booking_details_page.dart';
 import 'app_route_path.dart';
 
 final GlobalKey<NavigatorState> globalNavigator = GlobalKey<NavigatorState>();
@@ -129,6 +131,26 @@ class AppRouteConf {
             ),
           ),
         ),
+      ),
+      GoRoute(
+        path: AppRoute.pendingAdvanceBookings.path,
+        name: AppRoute.pendingAdvanceBookings.name,
+        pageBuilder: (context, state) => _fadePage(
+          const PendingAdvanceBookingsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoute.pendingAdvanceBookingDetails.path,
+        name: AppRoute.pendingAdvanceBookingDetails.name,
+        pageBuilder: (context, state) {
+          final bookingId =
+              state.extra as String? ?? state.uri.queryParameters['id'];
+          return _fadePage(
+            PendingAdvanceBookingDetailsScreen(
+              bookingId: bookingId,
+            ),
+          );
+        },
       ),
     ],
   );

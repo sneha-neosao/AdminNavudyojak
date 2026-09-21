@@ -10,7 +10,9 @@ enum AppRoute {
   settings(path: "/settings"),
   notifications(path: "/notifications"),
   maintenance(path: "/maintenance"),
-  resetPassword(path: "/reset-password");
+  resetPassword(path: "/reset-password"),
+  pendingAdvanceBookings(path: "/pending-advance-bookings"),
+  pendingAdvanceBookingDetails(path: "/pending-advance-booking-details");
 
   final String path;
 

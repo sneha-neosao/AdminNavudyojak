@@ -72,3 +72,5 @@ export '../../features/bookings/bloc/pending_advance_bookings_bloc/pending_advan
 export '../../remote/models/bookings_model/pending_advance_booking_details_response.dart';
 export '../../features/bookings/domain/usecase/pending_advance_booking_details_usecase.dart';
 export '../../features/bookings/bloc/pending_advance_booking_details_bloc/pending_advance_booking_details_bloc.dart';
+export '../../features/bookings/presentation/pages/pending_advance_bookings_page.dart';
+export '../../features/bookings/presentation/pages/pending_advance_booking_details_page.dart';
