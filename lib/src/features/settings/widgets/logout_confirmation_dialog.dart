@@ -104,9 +104,6 @@ class LogoutConfirmationDialog extends StatelessWidget {
             onConfirm: () {
               dialogContext.read<AuthLoginBloc>().add(AuthLogoutEvent());
             },
-            onCancel: () {
-              Navigator.of(dialogContext).pop();
-            },
           ),
         );
       },

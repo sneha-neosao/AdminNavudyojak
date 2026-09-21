@@ -7,9 +7,9 @@ import '../../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../../core/theme/app_color.dart';
 import '../../../../remote/models/bookings_model/pending_advance_bookings_response.dart';
 import '../../../../routes/app_route_path.dart';
-import '../../../widgets/app_snackbar_widget.dart';
 import '../../bloc/approve_pending_advance_bloc/approve_pending_advance_bloc.dart';
 import '../../bloc/pending_advance_bookings_bloc/pending_advance_bookings_bloc.dart';
+import 'approve_advance_confirmation_dialog.dart';
 import 'pending_advance_booking_card_widget.dart';
 import 'pending_advance_bookings_header_widget.dart';
 
@@ -52,30 +52,7 @@ class _PendingAdvanceBookingsContentWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ApprovePendingAdvanceBloc, ApprovePendingAdvanceState>(
-      listener: (context, approveState) {
-        if (approveState is ApprovePendingAdvanceSuccessState) {
-          final msg = approveState.data.message?.isNotEmpty == true
-              ? approveState.data.message!
-              : 'Advance payment approved successfully';
-          AppSnackBarWidget.show(
-            context,
-            message: msg,
-            type: ToastType.success,
-          );
-          context
-              .read<PendingAdvanceBookingsBloc>()
-              .add(RefreshPendingAdvanceBookingsEvent());
-        } else if (approveState is ApprovePendingAdvanceFailureState) {
-          AppSnackBarWidget.show(
-            context,
-            message: approveState.message.isNotEmpty
-                ? approveState.message
-                : 'Failed to approve booking advance',
-            type: ToastType.error,
-          );
-        }
-      },
+    return BlocBuilder<ApprovePendingAdvanceBloc, ApprovePendingAdvanceState>(
       builder: (context, approveState) {
         return BlocBuilder<PendingAdvanceBookingsBloc,
             PendingAdvanceBookingsState>(
@@ -269,9 +246,11 @@ class _PendingAdvanceBookingsContentWidgetState
                               );
                             },
                             onApprove: () {
-                              context.read<ApprovePendingAdvanceBloc>().add(
-                                    ApprovePendingAdvanceSubmitEvent(item.id),
-                                  );
+                              ApproveAdvanceConfirmationDialog.show(
+                                context: context,
+                                bookingId: item.id,
+                                bookingCode: item.bookingId,
+                              );
                             },
                           );
                         },
