@@ -29,6 +29,7 @@ import '../../features/login/domain/usecase/verify_reset_token_usecase.dart';
 import '../../features/login/domain/usecase/reset_password_usecase.dart';
 import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
 import '../models/request_model/refunds_response.dart';
+import '../models/bookings_model/pending_advance_bookings_response.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
@@ -184,6 +185,20 @@ abstract class RemoteDataSource {
     String? isDashboard,
     String? ordering,
     String? refundType,
+  });
+
+  /// Pending Advance Bookings
+  // ignore: non_constant_identifier_names
+  Future<PendingAdvanceBookingsResponse> PendingAdvanceBookings({
+    int? page,
+    int? limit,
+    String? search,
+  });
+  // ignore: non_constant_identifier_names
+  Future<PendingAdvanceBookingsResponse> pending_advance_bookings({
+    int? page,
+    int? limit,
+    String? search,
   });
 }
 
@@ -947,6 +962,63 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = RefundsResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<PendingAdvanceBookingsResponse> PendingAdvanceBookings({
+    int? page,
+    int? limit,
+    String? search,
+  }) async {
+    return pending_advance_bookings(
+      page: page,
+      limit: limit,
+      search: search,
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<PendingAdvanceBookingsResponse> pending_advance_bookings({
+    int? page,
+    int? limit,
+    String? search,
+  }) async {
+    try {
+      String url = ApiUrl.pendingAdvanceBookings;
+      final queryParams = <String, String>{};
+      if (page != null) queryParams['page'] = page.toString();
+      if (limit != null) queryParams['limit'] = limit.toString();
+      if (search != null && search.trim().isNotEmpty) {
+        queryParams['search'] = search.trim();
+      }
+
+      if (queryParams.isNotEmpty) {
+        final query = Uri(queryParameters: queryParams).query;
+        url = '$url?$query';
+      }
+
+      final response = await _helper.execute(
+        method: Method.get,
+        url: url,
+        options: Options(headers: {'accept': 'application/json'}),
+      );
+
+      final respData = PendingAdvanceBookingsResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

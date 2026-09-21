@@ -1,8 +1,10 @@
 class ApiUrl {
   const ApiUrl._();
 
-  static const baseUrl = "https://mnkbackend.neosao.co.in/api"; // LIVE
-  // static const baseUrl = "http://192.168.1.6:8000/api"; // LOCAL
+  // static const baseUrl = "https://mnkbackend.neosao.co.in/api"; // LIVE
+  static const baseUrl = "http://192.168.1.6:8000/api"; // LOCAL
+
+  // static const baseUrl = "https://9hjbbxk2-8000.inc1.devtunnels.ms/api";
 
   static const login = "/auth/login";
 
@@ -115,5 +117,19 @@ class ApiUrl {
     }
     if (queryParams.isEmpty) return refunds;
     return "$refunds?${queryParams.join('&')}";
+  }
+
+  static const pendingAdvanceBookings = "/admin-app/bookings/pending-advances";
+  static String pendingAdvanceBookingsUrl({
+    int? page,
+    int? limit,
+    String? search,
+  }) {
+    final queryParams = <String>[];
+    if (page != null) queryParams.add("page=$page");
+    if (limit != null) queryParams.add("limit=$limit");
+    if (search != null && search.isNotEmpty) queryParams.add("search=$search");
+    if (queryParams.isEmpty) return pendingAdvanceBookings;
+    return "$pendingAdvanceBookings?${queryParams.join('&')}";
   }
 }

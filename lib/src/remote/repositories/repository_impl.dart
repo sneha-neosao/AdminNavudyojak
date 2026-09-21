@@ -37,6 +37,8 @@ import '../models/auth_model/change_password_response.dart';
 import '../../features/profile/domain/usecase/change_password_usecase.dart';
 import '../models/request_model/refunds_response.dart';
 import '../../features/request/domain/usecase/refunds_usecase.dart';
+import '../models/bookings_model/pending_advance_bookings_response.dart';
+import '../../features/bookings/domain/usecase/pending_advance_bookings_usecase.dart';
 
 /// Abstract Repository interface defining all data operations for the app
 abstract class Repository {
@@ -120,6 +122,12 @@ abstract class Repository {
   // ignore: non_constant_identifier_names
   Future<Either<Failure, RefundsResponse>> refunds_list(
     RefundsParams params,
+  );
+
+  /// Pending Advance Bookings
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, PendingAdvanceBookingsResponse>> pending_advance_bookings(
+    PendingAdvanceBookingsParams params,
   );
 }
 
@@ -902,6 +910,52 @@ class AuthRepositoryImpl implements Repository {
                 respData.message?.isNotEmpty == true
                     ? respData.message!
                     : "Failed to retrieve refunds",
+              ),
+            );
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, PendingAdvanceBookingsResponse>> pending_advance_bookings(
+    PendingAdvanceBookingsParams params,
+  ) {
+    return _networkInfo.check<PendingAdvanceBookingsResponse>(
+      connected: () async {
+        try {
+          final respData = await _remoteDataSource.pending_advance_bookings(
+            page: params.page,
+            limit: params.limit,
+            search: params.search,
+          );
+
+          if (respData.success == false) {
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to retrieve pending advance bookings",
               ),
             );
           }

@@ -204,4 +204,13 @@ void configureDepedencies() {
   getIt.registerFactory<RefundsBloc>(
     () => RefundsBloc(getIt<RefundsUseCase>()),
   );
+
+  /// Pending Advance Bookings registered per Rule 4
+  getIt.registerLazySingleton<PendingAdvanceBookingsUseCase>(
+    () => PendingAdvanceBookingsUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<PendingAdvanceBookingsBloc>(
+    () => PendingAdvanceBookingsBloc(getIt<PendingAdvanceBookingsUseCase>()),
+  );
 }
