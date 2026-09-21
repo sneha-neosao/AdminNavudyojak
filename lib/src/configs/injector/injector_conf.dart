@@ -224,4 +224,15 @@ void configureDepedencies() {
       getIt<PendingAdvanceBookingDetailsUseCase>(),
     ),
   );
+
+  /// Approve Pending Advance registered per Rule 4
+  getIt.registerLazySingleton<ApprovePendingAdvanceUseCase>(
+    () => ApprovePendingAdvanceUseCase(getIt<Repository>()),
+  );
+
+  getIt.registerFactory<ApprovePendingAdvanceBloc>(
+    () => ApprovePendingAdvanceBloc(
+      getIt<ApprovePendingAdvanceUseCase>(),
+    ),
+  );
 }

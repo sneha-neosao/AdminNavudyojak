@@ -8,12 +8,14 @@ class PendingAdvanceBookingCardWidget extends StatelessWidget {
   final PendingAdvanceBookingItem item;
   final VoidCallback? onTap;
   final VoidCallback? onApprove;
+  final bool isApproving;
 
   const PendingAdvanceBookingCardWidget({
     super.key,
     required this.item,
     this.onTap,
     this.onApprove,
+    this.isApproving = false,
   });
 
   String _formatDate(String rawDate) {
@@ -274,9 +276,11 @@ class PendingAdvanceBookingCardWidget extends StatelessWidget {
                   width: double.infinity,
                   height: 42.h,
                   child: ElevatedButton(
-                    onPressed: onApprove ?? onTap,
+                    onPressed: isApproving ? null : onApprove,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.primary,
+                      disabledBackgroundColor:
+                          AppColor.primary.withValues(alpha: 0.7),
                       foregroundColor: AppColor.pureWhite,
                       elevation: 1,
                       shadowColor: AppColor.primary.withValues(alpha: 0.3),
@@ -284,15 +288,26 @@ class PendingAdvanceBookingCardWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                     ),
-                    child: Text(
-                      'Approve',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColor.pureWhite,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
+                    child: isApproving
+                        ? SizedBox(
+                            width: 20.w,
+                            height: 20.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2.2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColor.pureWhite,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            'Approve',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColor.pureWhite,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
                   ),
                 ),
               ],

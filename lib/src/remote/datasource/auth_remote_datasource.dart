@@ -31,6 +31,7 @@ import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
 import '../models/request_model/refunds_response.dart';
 import '../models/bookings_model/pending_advance_bookings_response.dart';
 import '../models/bookings_model/pending_advance_booking_details_response.dart';
+import '../models/bookings_model/approve_pending_advance_response.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
@@ -209,6 +210,16 @@ abstract class RemoteDataSource {
   );
   // ignore: non_constant_identifier_names
   Future<PendingAdvanceBookingDetailsResponse> pending_advance_booking_details(
+    String id,
+  );
+
+  /// Approve Pending Advance
+  // ignore: non_constant_identifier_names
+  Future<ApprovePendingAdvanceResponse> ApprovePendingAdvance(
+    String id,
+  );
+  // ignore: non_constant_identifier_names
+  Future<ApprovePendingAdvanceResponse> approve_pending_advance(
     String id,
   );
 }
@@ -1068,6 +1079,44 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = PendingAdvanceBookingDetailsResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ApprovePendingAdvanceResponse> ApprovePendingAdvance(
+    String id,
+  ) async {
+    return approve_pending_advance(id);
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<ApprovePendingAdvanceResponse> approve_pending_advance(
+    String id,
+  ) async {
+    try {
+      final url = ApiUrl.approvePendingAdvance(id);
+
+      final response = await _helper.execute(
+        method: Method.post,
+        url: url,
+        data: {},
+      );
+
+      final respData = ApprovePendingAdvanceResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();

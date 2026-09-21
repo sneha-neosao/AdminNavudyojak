@@ -135,4 +135,7 @@ class ApiUrl {
 
   static String pendingAdvanceBookingDetails(String id) =>
       "/admin-app/bookings/pending-advances/$id";
+
+  static String approvePendingAdvance(String id) =>
+      "/admin-app/bookings/pending-advances/$id/approve";
 }

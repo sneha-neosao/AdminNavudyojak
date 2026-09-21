@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/theme/app_color.dart';
+import '../../bloc/approve_pending_advance_bloc/approve_pending_advance_bloc.dart';
 import '../../bloc/pending_advance_bookings_bloc/pending_advance_bookings_bloc.dart';
 import '../widgets/pending_advance_bookings_content_widget.dart';
 
@@ -30,6 +31,9 @@ class _PendingAdvanceBookingsScreenState
       providers: [
         BlocProvider<PendingAdvanceBookingsBloc>.value(
           value: _pendingAdvanceBookingsBloc,
+        ),
+        BlocProvider<ApprovePendingAdvanceBloc>(
+          create: (context) => getIt<ApprovePendingAdvanceBloc>(),
         ),
       ],
       child: const Scaffold(

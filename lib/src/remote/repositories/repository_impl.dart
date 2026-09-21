@@ -40,6 +40,7 @@ import '../../features/request/domain/usecase/refunds_usecase.dart';
 import '../models/bookings_model/pending_advance_bookings_response.dart';
 import '../../features/bookings/domain/usecase/pending_advance_bookings_usecase.dart';
 import '../models/bookings_model/pending_advance_booking_details_response.dart';
+import '../models/bookings_model/approve_pending_advance_response.dart';
 
 /// Abstract Repository interface defining all data operations for the app
 abstract class Repository {
@@ -134,6 +135,12 @@ abstract class Repository {
   /// Pending Advance Booking Details
   // ignore: non_constant_identifier_names
   Future<Either<Failure, PendingAdvanceBookingDetailsResponse>> pending_advance_booking_details(
+    String id,
+  );
+
+  /// Approve Pending Advance
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, ApprovePendingAdvanceResponse>> approve_pending_advance(
     String id,
   );
 }
@@ -1006,6 +1013,49 @@ class AuthRepositoryImpl implements Repository {
                 respData.message?.isNotEmpty == true
                     ? respData.message!
                     : "Failed to retrieve booking details",
+              ),
+            );
+          }
+
+          return Right(respData);
+        } on ServerException {
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        } catch (e) {
+          if (e is ApiException) {
+            return Left(ApiFailure(e.message));
+          }
+          return Left(ServerFailure(mapFailureToMessage(ServerFailure(""))));
+        }
+      },
+      notConnected: () async {
+        try {
+          return Left(
+            InternetFailure(mapFailureToMessage(InternetFailure(""))),
+          );
+        } on CacheException {
+          return Left(CacheFailure(mapFailureToMessage(CacheFailure(""))));
+        }
+      },
+    );
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<Either<Failure, ApprovePendingAdvanceResponse>> approve_pending_advance(
+    String id,
+  ) {
+    return _networkInfo.check<ApprovePendingAdvanceResponse>(
+      connected: () async {
+        try {
+          final respData =
+              await _remoteDataSource.approve_pending_advance(id);
+
+          if (respData.success == false) {
+            return Left(
+              ServerFailure(
+                respData.message?.isNotEmpty == true
+                    ? respData.message!
+                    : "Failed to approve pending advance",
               ),
             );
           }
