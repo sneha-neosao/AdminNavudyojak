@@ -132,4 +132,7 @@ class ApiUrl {
     if (queryParams.isEmpty) return pendingAdvanceBookings;
     return "$pendingAdvanceBookings?${queryParams.join('&')}";
   }
+
+  static String pendingAdvanceBookingDetails(String id) =>
+      "/admin-app/bookings/pending-advances/$id";
 }

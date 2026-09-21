@@ -30,6 +30,7 @@ import '../../features/login/domain/usecase/reset_password_usecase.dart';
 import '../../features/profile/domain/usecase/update_fcm_token_usecase.dart';
 import '../models/request_model/refunds_response.dart';
 import '../models/bookings_model/pending_advance_bookings_response.dart';
+import '../models/bookings_model/pending_advance_booking_details_response.dart';
 
 abstract class RemoteDataSource {
   /// Authentication
@@ -200,6 +201,16 @@ abstract class RemoteDataSource {
     int? limit,
     String? search,
   });
+
+  /// Pending Advance Booking Details
+  // ignore: non_constant_identifier_names
+  Future<PendingAdvanceBookingDetailsResponse> PendingAdvanceBookingDetails(
+    String id,
+  );
+  // ignore: non_constant_identifier_names
+  Future<PendingAdvanceBookingDetailsResponse> pending_advance_booking_details(
+    String id,
+  );
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -1019,6 +1030,44 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       );
 
       final respData = PendingAdvanceBookingsResponse.fromJson(response);
+      return respData;
+    } on EmptyException {
+      throw AuthException();
+    } catch (e) {
+      logger.e(e);
+      if (e.toString() == noElement) {
+        throw AuthException();
+      }
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ServerException();
+    }
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<PendingAdvanceBookingDetailsResponse> PendingAdvanceBookingDetails(
+    String id,
+  ) async {
+    return pending_advance_booking_details(id);
+  }
+
+  @override
+  // ignore: non_constant_identifier_names
+  Future<PendingAdvanceBookingDetailsResponse> pending_advance_booking_details(
+    String id,
+  ) async {
+    try {
+      final url = ApiUrl.pendingAdvanceBookingDetails(id);
+
+      final response = await _helper.execute(
+        method: Method.get,
+        url: url,
+        options: Options(headers: {'accept': 'application/json'}),
+      );
+
+      final respData = PendingAdvanceBookingDetailsResponse.fromJson(response);
       return respData;
     } on EmptyException {
       throw AuthException();
