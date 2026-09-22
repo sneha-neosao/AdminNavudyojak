@@ -17,7 +17,8 @@ class RequestsHeaderWidget extends StatelessWidget {
 
     final subtitle =
         selectedTab == 0 ? 'FINAL APPROVAL QUEUE' : 'ADVANCE BOOKINGS QUEUE';
-    final title = selectedTab == 0 ? 'Requests' : 'Bookings';
+    final title =
+        selectedTab == 0 ? 'Refund Requests' : 'Sales & Booking Management';
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),

@@ -16,18 +16,18 @@ class CustomerHeaderWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'CUSTOMER INTELLIGENCE',
+            'Manage all customer accounts and records.',
             style: theme.textTheme.labelSmall?.copyWith(
               fontSize: 11.5.sp,
               fontWeight: FontWeight.w700,
               color: AppColor.cockpitOrange,
-              letterSpacing: 1.2,
+              letterSpacing: 0.5,
             ),
             softWrap: true,
           ),
           4.hS,
           Text(
-            'Customers',
+            'Customer Management',
             style: theme.textTheme.headlineSmall?.copyWith(
               fontSize: 24.sp,
               fontWeight: FontWeight.w800,

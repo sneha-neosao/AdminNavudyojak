@@ -80,13 +80,13 @@ class RequestsTabBarWidget extends StatelessWidget {
                     // Interactive Tab Labels
                     Row(
                       children: [
-                        // Tab 0: Requests
+                        // Tab 0: Refunds
                         Expanded(
                           child: _buildTabItem(
                             theme: theme,
                             index: 0,
-                            icon: Icons.assignment_outlined,
-                            label: 'Requests',
+                            icon: Icons.assignment_return_outlined,
+                            label: 'Refunds',
                             count: requestsCount,
                             selectionWeight: t0,
                           ),
