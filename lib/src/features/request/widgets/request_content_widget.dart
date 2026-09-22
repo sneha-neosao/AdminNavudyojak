@@ -2,104 +2,93 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/extensions/integer_sizedbox_extension.dart';
-import '../../../core/theme/app_color.dart';
-import '../../../remote/models/request_model/refunds_response.dart';
-import '../../widgets/app_snackbar_widget.dart';
+import '../../bookings/bloc/pending_advance_bookings_bloc/pending_advance_bookings_bloc.dart';
+import '../../bookings/presentation/widgets/pending_advance_bookings_content_widget.dart';
 import '../bloc/refunds_bloc/refunds_bloc.dart';
-import 'machine_return_settlements_card_widget.dart';
 import 'requests_header_widget.dart';
+import 'requests_list_widget.dart';
+import 'requests_tab_bar_widget.dart';
 
 class RequestContentWidget extends StatefulWidget {
-  const RequestContentWidget({super.key});
+  final int initialTabIndex;
+
+  const RequestContentWidget({
+    super.key,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<RequestContentWidget> createState() => _RequestContentWidgetState();
 }
 
-class _RequestContentWidgetState extends State<RequestContentWidget> {
-  final ScrollController _scrollController = ScrollController();
+class _RequestContentWidgetState extends State<RequestContentWidget>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTabIndex.clamp(0, 1),
+    );
+    _tabController.addListener(_handleTabChange);
   }
 
-  void _onScroll() {
-    if (_scrollController.hasClients) {
-      final maxScroll = _scrollController.position.maxScrollExtent;
-      final currentScroll = _scrollController.position.pixels;
-      if (currentScroll >= maxScroll - 150) {
-        context.read<RefundsBloc>().add(LoadMoreRefundsEvent());
-      }
+  void _handleTabChange() {
+    if (mounted) {
+      setState(() {});
     }
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
+    _tabController.removeListener(_handleTabChange);
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<RefundsBloc, RefundsState>(
-      listener: (context, state) {
-        if (state is RefundsFailureState) {
-          AppSnackBarWidget.show(
-            context,
-            message: state.message,
-            type: ToastType.error,
-          );
-        }
-      },
-      builder: (context, state) {
-        final isLoading = state is RefundsLoadingState;
-        final isLoadingMore =
-            state is RefundsSuccessState && state.isLoadingMore;
-        final errorMessage =
-            state is RefundsFailureState ? state.message : null;
+    final refundsState = context.watch<RefundsBloc>().state;
+    final bookingsState = context.watch<PendingAdvanceBookingsBloc>().state;
 
-        List<RefundItem> refundItems = [];
-        if (state is RefundsSuccessState) {
-          refundItems = state.allResults;
-        }
+    int requestsCount = 0;
+    if (refundsState is RefundsSuccessState) {
+      requestsCount = refundsState.data.data?.pagination?.count ??
+          refundsState.allResults.length;
+    }
 
-        return RefreshIndicator(
-          color: AppColor.cockpitOrange,
-          backgroundColor: AppColor.pureWhite,
-          onRefresh: () async {
-            context.read<RefundsBloc>().add(RefreshRefundsEvent());
-          },
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                8.hS,
-                const RequestsHeaderWidget(),
-                16.hS,
-                MachineReturnSettlementsCardWidget(
-                  items: refundItems,
-                  isLoading: isLoading,
-                  isLoadingMore: isLoadingMore,
-                  errorMessage: errorMessage,
-                  onRetry: () {
-                    context.read<RefundsBloc>().add(
-                          const GetRefundsEvent(page: 1, limit: 10),
-                        );
-                  },
-                ),
-                24.hS,
-              ],
-            ),
+    int bookingsCount = 0;
+    if (bookingsState is PendingAdvanceBookingsSuccessState) {
+      bookingsCount = bookingsState.data.data?.pagination?.count ??
+          bookingsState.allResults.length;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        8.hS,
+        RequestsHeaderWidget(selectedTab: _tabController.index),
+        12.hS,
+        RequestsTabBarWidget(
+          tabController: _tabController,
+          requestsCount: requestsCount,
+          bookingsCount: bookingsCount,
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            physics: const BouncingScrollPhysics(),
+            children: const [
+              RequestsListWidget(),
+              PendingAdvanceBookingsContentWidget(showHeader: false),
+            ],
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
+

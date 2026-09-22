@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../routes/app_route_path.dart';
 import '../../notifications/bloc/notifications_count_bloc/notifications_count_bloc.dart';
@@ -31,43 +30,43 @@ class HomeTopBarWidget extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // Booking Related Icon (Left of Notification Icon)
-          Material(
-            color: AppColor.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(22.r),
-              onTap: () {
-                context.pushNamed(AppRoute.pendingAdvanceBookings.name);
-              },
-              child: Container(
-                width: 42.w,
-                height: 42.w,
-                decoration: BoxDecoration(
-                  color: AppColor.card,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColor.metricCardBorder,
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColor.black.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.calendar_month_outlined,
-                    color: AppColor.charcoal,
-                    size: 21.sp,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          8.wS,
+          // Booking Related Icon (Left of Notification Icon) - commented out per user request
+          // Material(
+          //   color: AppColor.transparent,
+          //   child: InkWell(
+          //     borderRadius: BorderRadius.circular(22.r),
+          //     onTap: () {
+          //       context.pushNamed(AppRoute.pendingAdvanceBookings.name);
+          //     },
+          //     child: Container(
+          //       width: 42.w,
+          //       height: 42.w,
+          //       decoration: BoxDecoration(
+          //         color: AppColor.card,
+          //         shape: BoxShape.circle,
+          //         border: Border.all(
+          //           color: AppColor.metricCardBorder,
+          //           width: 1,
+          //         ),
+          //         boxShadow: [
+          //           BoxShadow(
+          //             color: AppColor.black.withValues(alpha: 0.04),
+          //             blurRadius: 8,
+          //             offset: const Offset(0, 2),
+          //           ),
+          //         ],
+          //       ),
+          //       child: Center(
+          //         child: Icon(
+          //           Icons.calendar_month_outlined,
+          //           color: AppColor.charcoal,
+          //           size: 21.sp,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // 8.wS,
           Material(
             color: AppColor.transparent,
             child: InkWell(

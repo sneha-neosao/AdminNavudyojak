@@ -82,7 +82,14 @@ class AppRouteConf {
           GoRoute(
             path: AppRoute.requests.path,
             name: AppRoute.requests.name,
-            pageBuilder: (context, state) => _fadePage(const RequestsScreen()),
+            pageBuilder: (context, state) {
+              final initialTabIndex = state.extra as int?;
+              return _fadePage(
+                RequestsScreen(
+                  initialTabIndex: initialTabIndex ?? 0,
+                ),
+              );
+            },
           ),
           GoRoute(
             path: AppRoute.settings.path,

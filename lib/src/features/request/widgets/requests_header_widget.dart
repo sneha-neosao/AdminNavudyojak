@@ -4,11 +4,20 @@ import '../../../core/extensions/integer_sizedbox_extension.dart';
 import '../../../core/theme/app_color.dart';
 
 class RequestsHeaderWidget extends StatelessWidget {
-  const RequestsHeaderWidget({super.key});
+  final int selectedTab;
+
+  const RequestsHeaderWidget({
+    super.key,
+    this.selectedTab = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final subtitle =
+        selectedTab == 0 ? 'FINAL APPROVAL QUEUE' : 'ADVANCE BOOKINGS QUEUE';
+    final title = selectedTab == 0 ? 'Requests' : 'Bookings';
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
@@ -16,7 +25,7 @@ class RequestsHeaderWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'FINAL APPROVAL QUEUE',
+            subtitle,
             style: theme.textTheme.labelSmall?.copyWith(
               fontSize: 11.5.sp,
               fontWeight: FontWeight.w700,
@@ -27,7 +36,7 @@ class RequestsHeaderWidget extends StatelessWidget {
           ),
           4.hS,
           Text(
-            'Requests',
+            title,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontSize: 24.sp,
               fontWeight: FontWeight.w800,

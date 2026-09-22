@@ -14,7 +14,12 @@ import 'pending_advance_booking_card_widget.dart';
 import 'pending_advance_bookings_header_widget.dart';
 
 class PendingAdvanceBookingsContentWidget extends StatefulWidget {
-  const PendingAdvanceBookingsContentWidget({super.key});
+  final bool showHeader;
+
+  const PendingAdvanceBookingsContentWidget({
+    super.key,
+    this.showHeader = true,
+  });
 
   @override
   State<PendingAdvanceBookingsContentWidget> createState() =>
@@ -22,8 +27,12 @@ class PendingAdvanceBookingsContentWidget extends StatefulWidget {
 }
 
 class _PendingAdvanceBookingsContentWidgetState
-    extends State<PendingAdvanceBookingsContentWidget> {
+    extends State<PendingAdvanceBookingsContentWidget>
+    with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -52,6 +61,7 @@ class _PendingAdvanceBookingsContentWidgetState
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocBuilder<ApprovePendingAdvanceBloc, ApprovePendingAdvanceState>(
       builder: (context, approveState) {
         return BlocBuilder<PendingAdvanceBookingsBloc,
@@ -82,16 +92,21 @@ class _PendingAdvanceBookingsContentWidgetState
                   parent: BouncingScrollPhysics(),
                 ),
                 slivers: [
-                  // Top padding
-                  SliverToBoxAdapter(child: 8.hS),
+                  if (widget.showHeader) ...[
+                    // Top padding
+                    SliverToBoxAdapter(child: 8.hS),
 
-                  // Header Widget
-                  SliverToBoxAdapter(
-                    child:
-                        PendingAdvanceBookingsHeaderWidget(count: totalCount),
-                  ),
+                    // Header Widget
+                    SliverToBoxAdapter(
+                      child:
+                          PendingAdvanceBookingsHeaderWidget(count: totalCount),
+                    ),
 
-                  SliverToBoxAdapter(child: 8.hS),
+                    SliverToBoxAdapter(child: 8.hS),
+                  ] else ...[
+                    // Spacing under tab bar
+                    SliverToBoxAdapter(child: 12.hS),
+                  ],
 
                   // 1. Initial Loading State using Skeletonizer
                   if (isLoading)
