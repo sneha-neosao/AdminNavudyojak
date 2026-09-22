@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.admin_navudyojak"
+    namespace = "com.maharashtra_navudyjok_admin"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
