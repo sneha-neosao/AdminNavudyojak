@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../configs/injector/injector.dart';
+import '../../routes/app_route_path.dart';
 import '../session/session_manager.dart';
 
 class ApiInterceptor extends Interceptor {
@@ -239,7 +241,7 @@ class ApiInterceptor extends Interceptor {
       // Close any open dialogs/bottom sheets on the root navigator
       Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
 
-      // context.go(AppRoute.login.path);
+      context.go(AppRoute.login.path);
     });
   }
 }
